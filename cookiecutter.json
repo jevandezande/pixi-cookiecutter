@@ -1,0 +1,17 @@
+{
+    "project_name": "Pixi Project",
+    "package_name": "{{cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_')}}",
+    "author_name": "",
+    "github_username": "",
+    "project_url": "https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}",
+    "pixi_dependencies": "",
+    "pixi_test_dependencies": "",
+    "line_length": "100",
+    "license": ["MIT", "APL-2.0", "BSD-3-clause", "MPL-2.0", "None"],
+    "github_setup": ["None", "private", "internal", "public"],
+    "_copy_without_render": [".github/workflows"],
+    "__prompts__": {
+        "pixi_dependencies": "Pixi dependencies (e.g. numpy scipy@1.14.*)",
+        "pixi_test_dependencies": "Pixi test dependencies (e.g. pytest-xdist@>=3.6)"
+    }
+}

@@ -1,0 +1,90 @@
+[project]
+name = "pixi_cookiecutter"
+description = "Cookiecutter for setting up python projects with pixi that just work"
+license = {file = "LICENSE"}
+version = "0.0.1"
+readme = "README.md"
+keywords = ["cookiecutter", "pixi"]
+authors = [{name = "Jonathon Vandezande"}]
+requires-python = ">=3.12"
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64"]
+
+[tool.pixi.dependencies]
+cookiecutter = ">=2.6"
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default"}
+
+[tool.pixi.feature.dev.tasks]
+fmt = { cmd="ruff format hooks" }
+lint = { cmd="ruff check hooks --fix" }
+types = { cmd="mypy hooks" }
+test = { cmd="pytest" }
+all = { depends_on = ["fmt", "lint", "types", "test"] }
+
+[tool.pixi.feature.dev.dependencies]
+pytest = ">=8.3"
+pytest-cov = ">=5.0"
+ruff = ">=0.5"
+mypy = ">=1.10"
+pre-commit = ">=3.7"
+
+[tool.ruff]
+extend-exclude = ["\\{\\{cookiecutter.package_name\\}\\}"]
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "B",  # bugbear
+    "D",  # pydocstyle
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort
+    "N",  # pep8-naming conventions
+    "W",  # pycodestyle warnings
+    "C4", # comprehensions
+    "PL", # pylint
+    "PT", # flake8-pytest-style
+    "PIE", # misc lints
+    "PYI", # flake8-pyi
+    "TID", # tidy imports
+    "TCH", # type-checking imports
+    "RUF", # Ruff-specific rules
+    "RSE", # flake8-raise
+    "ICN001", # unconventional-import-alias
+]
+ignore = [
+    "N806", # Non-lowercase variable in function
+    "PLR0911", # Too many returns
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments to function call
+    "PLR0914", # Too many locals
+    "PLR0915", # Too many statements
+    "PLR1702", # Too many nested-blocks
+    "PLW2901", # Redifined loop name
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.mypy]
+exclude = "\\{\\{cookiecutter.package_name\\}\\}"
+files = ["hooks"]
+strict = true
+pretty = true
+
+[tool.pytest.ini_options]
+testpaths = ["hooks"]
+addopts = "--doctest-modules"
+doctest_optionflags = "NORMALIZE_WHITESPACE"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
