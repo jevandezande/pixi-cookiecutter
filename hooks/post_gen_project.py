@@ -155,8 +155,16 @@ def update_dependencies() -> None:
     call("pixi update")
 
 
-def test_program(program: str, install_str: str) -> None:
-    """Check that a program is installed."""
+def check_program(program: str, install_str: str) -> None:
+    """
+    Check that a program is installed.
+
+    >>> check_program("python", "https://www.python.org/")
+    >>> check_program("this_program_does_not_exist", "nothing")
+    Traceback (most recent call last):
+    ...
+    OSError: this_program_does_not_exist is not installed; install with `nothing`
+    """
     try:
         call(program, stdout=subprocess.DEVNULL)
     except FileNotFoundError as e:
@@ -167,13 +175,13 @@ def test_program(program: str, install_str: str) -> None:
 
 def allow_direnv() -> None:
     """Allow direnv."""
-    test_program("direnv", "pixi global install direnv")
+    check_program("direnv", "pixi global install direnv")
     call("direnv allow .")
 
 
 def git_hooks() -> None:
     """Install pre-commit and pre-push hooks."""
-    test_program("pre-commit", "pixi global install pre-commit")
+    check_program("pre-commit", "pixi global install pre-commit")
     call("pixi run pre-commit install")
 
 
@@ -206,7 +214,7 @@ def github_setup(privacy: str, remote: str) -> None:
     if privacy not in GITHUB_PRIVACY_OPTIONS:
         raise ValueError(f"{privacy=} not in {GITHUB_PRIVACY_OPTIONS}")
 
-    test_program("gh", "https://cli.github.com/")
+    check_program("gh", "https://cli.github.com/")
 
     call(f"gh repo create {{cookiecutter.package_name}} --{privacy} --remote {remote} --source .")
     call(f"git branch --set-upstream-to={remote} master")
