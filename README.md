@@ -19,21 +19,19 @@
 
 
 ## Setup
-While all of the steps are automated, you will need to first install `pixi` and `cookiecutter`
+While all of the steps are automated, you will need to first install `pixi`, `cookiecutter`, and `direnv`, and optionally install the [GitHub-CLI](https://cli.github.com/).
 
 ```sh
-# Install with pixi
-pixi global install cookiecutter
-# Or with brew
-brew install pixi cookiecutter
-# Or with curl
 curl -fsSL https://pixi.sh/install.sh | bash
-```
+pixi global install cookiecutter direnv
 
-See [notes.md](notes.md#Project-Tools) for optional dependencies.
+# Optional
+curl -sS https://webi.sh/gh | sh
+```
+See [notes.md](notes.md#Project-Tools) for optional dependencies and [alternative installation methods](notes.md#Alternative-installation-methods).
 
 ```sh
-# Use cookiecutter to create project from this template
+# Use cookiecutter to create a project from this template
 cookiecutter gh:jevandezande/pixi-cookiecutter
 ```
 
@@ -43,7 +41,7 @@ The cookiecutter will automagically
 - Setup environment
 - Setup pre-commit and pre-push hooks
 - Make initial commit
-- Setup remote on GitHub (optional)
+- Sets up remote on GitHub (optional)
 
 
 ## Recommendations
