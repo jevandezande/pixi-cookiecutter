@@ -55,4 +55,4 @@ jobs:
         run: |
           cd ../pixi_project
           direnv allow .
-          pixi run pre-commit run --all-files
+          pixi run -e dev pre-commit run --all-files

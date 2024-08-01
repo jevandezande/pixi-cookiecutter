@@ -1,8 +1,8 @@
 # Notes
 ## Configuring Pixi
 
-If installing programs with pixi (recommended), make sure the `~/.pixi/bin` is
-in your path by adding the following to your .zshrc/.bashrc/.profile
+If installing programs with pixi (recommended), make sure that `~/.pixi/bin`
+is in your path by adding the following to your .zshrc/.bashrc/.profile
 ```sh
 export PATH=$PATH:~/.pixi/bin
 ```

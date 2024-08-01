@@ -181,8 +181,7 @@ def allow_direnv() -> None:
 
 def git_hooks() -> None:
     """Install pre-commit and pre-push hooks."""
-    check_program("pre-commit", "pixi global install pre-commit")
-    call("pixi run pre-commit install")
+    call("pixi run -e dev pre-commit install")
 
 
 def git_initial_commit() -> None:
