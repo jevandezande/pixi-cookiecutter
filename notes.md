@@ -46,7 +46,7 @@ act schedule
 
 #### Installing act
 ```sh
-brew install act
+pixi global install act
 ```
 
 ### Direnv
@@ -96,7 +96,10 @@ pixi global install pre-commit
 ### Alternative installation methods
 #### Act
 ```sh
-gh extension install https://github.com/nektos/gh-act
+# Brew
+brew install act
+# GitHub-CLI
+gh extension install nektos/gh-act
 ```
 
 #### Cookiecutter
