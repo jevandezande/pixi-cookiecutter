@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 
 PROTOCOL = Literal["git", "https"]
 GITHUB_PRIVACY_OPTIONS = ["private", "internal", "public"]
-MINUMUM_PYTHON_MINOR_VERSION = 12
+MINIMUM_PYTHON_MINOR_VERSION = 12
 
 
 def call(*inputs: str, **kwargs: Any) -> None:
@@ -36,7 +36,7 @@ def set_python_version() -> None:
     """Set the python version in pyproject.toml and .github/workflows/test.yml."""
     python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
     logger.info(f"Settting {python_version=}")
-    if sys.version_info.minor < MINUMUM_PYTHON_MINOR_VERSION:
+    if sys.version_info.minor < MINIMUM_PYTHON_MINOR_VERSION:
         logger.warn(f"{python_version=} should be upgraded to the latest avaiable python version.")
 
     file_names = [
