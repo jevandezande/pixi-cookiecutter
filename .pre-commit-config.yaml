@@ -1,7 +1,7 @@
 exclude: '.pixi/'
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0  # this is optional, use `pre-commit autoupdate` to get the latest rev!
+  rev: v5.0.0  # this is optional, use `pre-commit autoupdate` to get the latest rev!
   hooks:
     - id: check-yaml
     - id: check-toml
@@ -13,7 +13,7 @@ repos:
   hooks:
   - id: ruff
     name: ruff-format
-    stages: [commit, push]
+    stages: [pre-commit, pre-push]
     language: system
     entry: pixi run fmt
     types: [python]
@@ -21,7 +21,7 @@ repos:
 
   - id: ruff
     name: ruff-check
-    stages: [commit, push]
+    stages: [pre-commit, pre-push]
     language: system
     entry: pixi run lint
     types: [python]
@@ -29,7 +29,7 @@ repos:
 
   - id: Mypy
     name: mypy
-    stages: [commit, push]
+    stages: [pre-commit, pre-push]
     language: system
     entry: pixi run types
     types: [python]
@@ -37,7 +37,7 @@ repos:
 
   - id: pytest
     name: pytest
-    stages: [commit, push]
+    stages: [pre-commit, pre-push]
     language: system
     entry: pixi run test
     types: [python]
