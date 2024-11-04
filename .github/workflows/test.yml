@@ -56,3 +56,6 @@ jobs:
           cd ../pixi_project
           direnv allow .
           pixi run -e dev pre-commit run --all-files
+
+      - name: Docker build
+        run:
