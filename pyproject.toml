@@ -24,7 +24,7 @@ fmt = { cmd="ruff format hooks" }
 lint = { cmd="ruff check hooks --fix" }
 types = { cmd="mypy hooks" }
 test = { cmd="pytest" }
-all = { depends_on = ["fmt", "lint", "types", "test"] }
+all = { depends-on = ["fmt", "lint", "types", "test"] }
 
 [tool.pixi.feature.dev.dependencies]
 pytest = ">=8.3"
