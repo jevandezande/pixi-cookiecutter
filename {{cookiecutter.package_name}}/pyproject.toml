@@ -68,7 +68,6 @@ ignore = [
     "PLR0914", # Too many locals
     "PLR0915", # Too many statements
     "PLR1702", # Too many nested-blocks
-    "PLW2901", # Redifined loop name
 ]
 
 [tool.ruff.lint.per-file-ignores]
