@@ -189,6 +189,14 @@ def git_initial_commit() -> None:
     call("git add .", "git commit -m Setup")
 
 
+def setup_remote(remote: str = "origin") -> None:
+    """Add remote (and optionally setup GitHub)."""
+    if "{{cookiecutter.github_setup}}" != "None":  # type: ignore [comparison-overlap]  # noqa: PLR0133
+        github_setup("{{cookiecutter.github_setup}}", remote)
+    else:
+        git_add_remote(remote, "{{cookiecutter.project_url}}")
+
+
 def git_add_remote(remote: str, url: str, protocol: PROTOCOL = "git") -> None:
     """
     Add a remote to the git repository.
@@ -204,7 +212,7 @@ def git_add_remote(remote: str, url: str, protocol: PROTOCOL = "git") -> None:
     call(f"git remote add {remote} {url}")
 
 
-def github_setup(privacy: str, remote: str) -> None:
+def github_setup(privacy: str, remote: str = "origin") -> None:
     """
     Make a repository on GitHub (requires GitHub CLI).
 
@@ -245,10 +253,7 @@ def main() -> None:
     allow_direnv()
     git_hooks()
     git_initial_commit()
-    git_add_remote("origin", "{{cookiecutter.project_url}}")
-
-    if "{{cookiecutter.github_setup}}" != "None":  # type: ignore [comparison-overlap]  # noqa: PLR0133
-        github_setup("{{cookiecutter.github_setup}}", "origin")
+    setup_remote("origin")
 
     notes()
 
