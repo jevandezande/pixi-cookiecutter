@@ -29,9 +29,9 @@ all = { depends-on = ["fmt", "lint", "types", "test"] }
 [tool.pixi.feature.dev.dependencies]
 pytest = ">=8.3"
 pytest-cov = ">=6.0"
-ruff = ">=0.9"
-mypy = ">=1.10"
-pre-commit = ">=4.0"
+ruff = ">=0.11"
+mypy = ">=1.15"
+pre-commit = ">=4.2"
 
 [tool.ruff]
 extend-exclude = ["\\{\\{cookiecutter.package_name\\}\\}"]
