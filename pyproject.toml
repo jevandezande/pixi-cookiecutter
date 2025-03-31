@@ -85,5 +85,5 @@ addopts = "--doctest-modules"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
+requires = ["hatchling"]
