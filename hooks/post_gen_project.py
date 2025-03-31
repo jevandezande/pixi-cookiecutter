@@ -37,7 +37,9 @@ def set_python_version() -> None:
     python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
     logger.info(f"Settting {python_version=}")
     if sys.version_info.minor < MINIMUM_PYTHON_MINOR_VERSION:
-        logger.warn(f"{python_version=} should be upgraded to the latest avaiable python version.")
+        logger.warning(
+            f"{python_version=} should be upgraded to the latest avaiable python version."
+        )
 
     file_names = [
         ".github/workflows/test.yml",
