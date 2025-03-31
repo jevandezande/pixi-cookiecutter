@@ -18,18 +18,18 @@ GITHUB_PRIVACY_OPTIONS = ["private", "internal", "public"]
 MINIMUM_PYTHON_MINOR_VERSION = 12
 
 
-def call(*inputs: str, **kwargs: Any) -> None:
+def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[str]:
     """
     Call shell commands.
 
-    :param inputs: commands to call
-    :param kwargs: keyword arguments to pass to subprocess.check_call
+    :param cmd: command to call
+    :param check: whether to raise an exception if the command fails
+    :param kwargs: keyword arguments to pass to subprocess.call
 
     Warning: strings with spaces are not yet supported.
     """
-    for input in inputs:
-        logger.debug(f"Calling: {input}")
-        subprocess.check_call(input.split(), **kwargs)
+    logger.debug(f"Calling: {cmd}")
+    return subprocess.run(cmd.split(), check=check, **kwargs)
 
 
 def set_python_version() -> None:
@@ -186,7 +186,8 @@ def git_hooks() -> None:
 
 def git_initial_commit() -> None:
     """Make the initial commit."""
-    call("git add .", "git commit -m Setup")
+    call("git add .")
+    call("git commit -m Setup")
 
 
 def setup_remote(remote: str = "origin") -> None:
