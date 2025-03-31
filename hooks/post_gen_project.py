@@ -215,7 +215,9 @@ def git_add_remote(remote: str, url: str, protocol: PROTOCOL = "git") -> None:
     call(f"git remote add {remote} {url}")
 
 
-def github_setup(privacy: str, remote: str = "origin") -> None:
+def github_setup(
+    privacy: str, remote: str = "origin", default_master_branch: str | None = None
+) -> None:
     """
     Make a repository on GitHub (requires GitHub CLI).
 
@@ -226,8 +228,22 @@ def github_setup(privacy: str, remote: str = "origin") -> None:
 
     check_program("gh", "https://cli.github.com/")
 
-    call(f"gh repo create {{cookiecutter.package_name}} --{privacy} --remote {remote} --source .")
-    call(f"git branch --set-upstream-to={remote} master")
+    try:
+        call(
+            f"gh repo create {{cookiecutter.package_name}} --{privacy} --remote {remote} --source ."
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error creating GitHub repository, likely already exists: {e}")
+
+    if not default_master_branch:
+        res = call("git config --global init.defaultBranch", text=True, stdout=subprocess.PIPE)
+        if not (default_master_branch := res.stdout.strip()):
+            default_master_branch = "master"
+
+    try:
+        call(f"git branch --set-upstream-to={remote} {default_master_branch}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error setting upstream to {default_master_branch}: {e}")
 
 
 def notes() -> None:
