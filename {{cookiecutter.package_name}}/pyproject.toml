@@ -1,7 +1,9 @@
 [project]
 name = "{{cookiecutter.package_name}}"
 description = "{{cookiecutter.project_name}}"
+{%- if cookiecutter.license != 'None' %}
 license = {file = "LICENSE"}
+{%- endif %}
 version = "0.0.1"
 readme = "README.md"
 keywords = []
