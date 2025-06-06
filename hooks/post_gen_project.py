@@ -37,7 +37,9 @@ def set_python_version() -> None:
     python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
     logger.info(f"Settting {python_version=}")
     if sys.version_info.minor < MINIMUM_PYTHON_MINOR_VERSION:
-        logger.warn(f"{python_version=} should be upgraded to the latest avaiable python version.")
+        logger.warn(
+            f"{python_version=} should be upgraded to the latest avaiable python version."
+        )
 
     file_names = [
         ".github/workflows/test.yml",
@@ -64,7 +66,9 @@ def set_license(license: str | None = "MIT") -> None:
     license = license.lower()
     licenses = [lic.name for lic in Path("licenses").iterdir()]
     if license not in licenses:
-        raise ValueError(f"{license=} is not available yet. Please select from:\n{licenses=}")
+        raise ValueError(
+            f"{license=} is not available yet. Please select from:\n{licenses=}"
+        )
 
     shutil.copy(f"licenses/{license}", "LICENSE")
 
@@ -140,8 +144,12 @@ def process_dependencies(deps: str) -> str:
 def update_dependencies() -> None:
     """Add and update the dependencies in pyproject.toml and pixi.lock."""
     # Extra space and .strip() avoids accidentally creating '""""'
-    dependencies = process_dependencies("""{{cookiecutter.pixi_dependencies}} """.strip())
-    dev_dependencies = process_dependencies("""{{cookiecutter.pixi_test_dependencies}} """.strip())
+    dependencies = process_dependencies(
+        """{{cookiecutter.pixi_dependencies}} """.strip()
+    )
+    dev_dependencies = process_dependencies(
+        """{{cookiecutter.pixi_test_dependencies}} """.strip()
+    )
 
     with open("pyproject.toml") as f:
         contents = (
@@ -168,7 +176,9 @@ def check_program(program: str, install_str: str) -> None:
     try:
         call(program, stdout=subprocess.DEVNULL)
     except FileNotFoundError as e:
-        raise OSError(f"{program} is not installed; install with `{install_str}`") from e
+        raise OSError(
+            f"{program} is not installed; install with `{install_str}`"
+        ) from e
     except subprocess.CalledProcessError as e:
         raise OSError(f"Issue with {program} encountered") from e
 
@@ -215,7 +225,9 @@ def github_setup(privacy: str, remote: str) -> None:
 
     check_program("gh", "https://cli.github.com/")
 
-    call(f"gh repo create {{cookiecutter.package_name}} --{privacy} --remote {remote} --source .")
+    call(
+        f"gh repo create {{cookiecutter.package_name}} --{privacy} --remote {remote} --source ."
+    )
     call(f"git branch --set-upstream-to={remote} master")
 
 
