@@ -245,10 +245,11 @@ def main() -> None:
     allow_direnv()
     git_hooks()
     git_initial_commit()
-    git_add_remote("origin", "{{cookiecutter.project_url}}")
 
     if "{{cookiecutter.github_setup}}" != "None":  # type: ignore [comparison-overlap]  # noqa: PLR0133
         github_setup("{{cookiecutter.github_setup}}", "origin")
+    else:
+        git_add_remote("origin", "{{cookiecutter.project_url}}")
 
     notes()
 
