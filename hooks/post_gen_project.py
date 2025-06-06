@@ -18,7 +18,7 @@ GITHUB_PRIVACY_OPTIONS = ["private", "internal", "public"]
 MINIMUM_PYTHON_MINOR_VERSION = 12
 
 
-def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
     """
     Call shell commands.
 
@@ -237,7 +237,7 @@ def github_setup(
 
     if not default_master_branch:
         res = call("git config --global init.defaultBranch", text=True, stdout=subprocess.PIPE)
-        if not (default_master_branch := res.stdout.strip()):
+        if not (default_master_branch := res.stdout.decode("utf-8").strip()):
             default_master_branch = "master"
 
     try:
