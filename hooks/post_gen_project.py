@@ -4,6 +4,7 @@ import logging
 import shutil
 import subprocess
 import sys
+import os
 from datetime import datetime
 from pathlib import Path
 from shutil import rmtree
@@ -216,7 +217,8 @@ def github_setup(privacy: str, remote: str) -> None:
     check_program("gh", "https://cli.github.com/")
 
     call(f"gh repo create {{cookiecutter.package_name}} --{privacy} --remote {remote} --source .")
-    call(f"git branch --set-upstream-to={remote} master")
+    branch_name = os.popen("git branch --show-current").read().strip()
+    call(f"git push -u {remote} {branch_name}")
 
 
 def notes() -> None:
@@ -245,10 +247,11 @@ def main() -> None:
     allow_direnv()
     git_hooks()
     git_initial_commit()
-    git_add_remote("origin", "{{cookiecutter.project_url}}")
 
     if "{{cookiecutter.github_setup}}" != "None":  # type: ignore [comparison-overlap]  # noqa: PLR0133
         github_setup("{{cookiecutter.github_setup}}", "origin")
+    else:
+        git_add_remote("origin", "{{cookiecutter.project_url}}")
 
     notes()
 
