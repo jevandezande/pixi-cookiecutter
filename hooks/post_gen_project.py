@@ -94,6 +94,7 @@ def process_dependency(dependency: str) -> str:
     Process a dependency.
 
     :param dependency: dependency to process
+    :return: processed dependency in the format 'package = "version"'
 
     >>> process_dependency("pytest")
     'pytest = "*"'
@@ -127,6 +128,7 @@ def process_dependencies(deps: str) -> str:
     Process a space separated list of dependencies.
 
     :param deps: dependencies to process
+    :return: processed dependencies in the format 'package = "version"'
 
     >>> process_dependencies(' ')
     ''
@@ -161,6 +163,9 @@ def check_program(program: str, install_str: str) -> None:
     """
     Check that a program is installed.
 
+    :param program: name of the program to check
+    :param install_str: string to print if the program is not installed
+
     >>> check_program("python", "https://www.python.org/")
     >>> check_program("this_program_does_not_exist", "nothing")
     Traceback (most recent call last):
@@ -193,7 +198,12 @@ def git_initial_commit() -> None:
 
 
 def setup_remote(remote: str = "origin") -> None:
-    """Add remote (and optionally setup GitHub)."""
+    """
+    Add remote (and optionally setup GitHub).
+
+    :param remote: name for the remote
+    :raises ValueError: if the privacy option is not valid
+    """
     if "{{cookiecutter.github_setup}}" != "None":  # type: ignore [comparison-overlap]  # noqa: PLR0133
         github_setup("{{cookiecutter.github_setup}}", remote)
     else:
@@ -220,7 +230,7 @@ def github_setup(privacy: str, remote: str = "origin", default_branch: str | Non
     Make a repository on GitHub (requires GitHub CLI).
 
     :param privacy: privacy of the repository ("private", "internal", "public")
-    :param remote: name of the remote to add (default: "origin")
+    :param remote: name of the remote to add
     :param default_branch: name of the default branch for upstream (defaults to global git config)
     """
     if privacy not in GITHUB_PRIVACY_OPTIONS:
