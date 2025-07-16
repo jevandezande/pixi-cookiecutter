@@ -247,7 +247,7 @@ def github_setup(privacy: str, remote: str = "origin", default_branch: str | Non
 
     if not default_branch:
         stdout = call(
-            "git config --global init.defaultBranch", text=True, stdout=subprocess.PIPE
+            "git config --global init.defaultBranch main", text=True, stdout=subprocess.PIPE
         ).stdout
 
         if isinstance(stdout, bytes):
