@@ -258,7 +258,8 @@ def github_setup(privacy: str, remote: str = "origin", default_branch: str | Non
         default_branch = default_branch or "master"
 
     try:
-        call(f"git branch --set-upstream-to={remote} {default_branch}")
+        call("git config branch.master.remote origin")
+        call("git config branch.master.merge refs/heads/master")
     except subprocess.CalledProcessError as e:
         logger.error(f"Error setting upstream to {default_branch}: {e}")
 
