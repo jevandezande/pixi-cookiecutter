@@ -1,7 +1,7 @@
 exclude: '.pixi/'
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0  # this is optional, use `pre-commit autoupdate` to get the latest rev!
+  rev: v6.0.0
   hooks:
     - id: check-yaml
     - id: check-toml
@@ -26,7 +26,7 @@ repos:
     types: [python]
     pass_filenames: false
 
-  - id: Ty
+  - id: ty
     name: ty
     stages: [pre-commit, pre-push]
     language: system
