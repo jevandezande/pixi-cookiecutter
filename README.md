@@ -52,4 +52,4 @@ The cookiecutter will automagically
 
 Read [notes](notes.md) for more tips.
 
-If you are interested in using Poetry to manage your project, checkout [poetry-cookiecutter](https://github.com/jevandezande/poetry-cookiecutter), which served as a template for this cookiecutter.
+If you don't need packages from conda repositores, check out `uv` and the [uv-cookiecutter](https://github.com/jevandezande/uv-cookiecutter).
