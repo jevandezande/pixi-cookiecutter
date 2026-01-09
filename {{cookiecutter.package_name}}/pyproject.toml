@@ -35,7 +35,7 @@ all = { depends-on = ["fmt", "lint", "types", "test"] }
 pytest = ">=8.3"
 pytest-cov = ">=6.0"
 ruff = ">=0.11"
-pre-commit = ">=4.2"
+prek = ">=0.2"
 {pixi_test_dependencies}
 
 [tool.pixi.feature.dev.pypi-dependencies]
@@ -78,7 +78,7 @@ ignore = [
 "__init__.py" = ["F401", "F403"]
 
 [tool.ruff.lint.pydocstyle]
-convention = "numpy"
+convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "{{cookiecutter.package_name}}"]

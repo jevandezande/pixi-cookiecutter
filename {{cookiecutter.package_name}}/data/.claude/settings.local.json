@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pixi run ruff:*)",
+      "Bash(pixi run ty:*)",
+      "Bash(pixi run pytest:*)",
+      "Bash(prek run -a:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git switch -c:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(rg:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pixi run ruff format .",
+            "statusMessage": "Formatting with ruff"
+          },
+          {
+            "type": "command",
+            "command": "pixi run ruff check . --fix",
+            "statusMessage": "Running ruff checks"
+          }
+        ]
+      }
+    ]
+  }
+}

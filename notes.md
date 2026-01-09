@@ -81,15 +81,15 @@ provides many useful additional tools. My favorites:
 curl -sS https://webi.sh/gh | sh
 ```
 
-### Pre-commit
-[pre-commit](https://pre-commit.com/) runs formatting, linting, and other hooks
+### Prek
+[prek](https://prek.j178.dev) runs formatting, linting, and other hooks
 on `git commit`.
 
-#### Installing pre-commit
-Pre-commit comes installed with the pixi package, but if you want to install it
+#### Installing prek
+Prek comes installed with the pixi package, but if you want to install it
 globally:
 ```sh
-pixi global install pre-commit
+pixi global install prek
 ```
 
 ### Alternative installation methods
@@ -125,10 +125,10 @@ apt install gh
 brew install gh
 ```
 
-#### Pre-commit
+#### Prek
 ```sh
 # Apt
-apt install pre-commit
+apt install prek
 # Brew
-brew install pre-commit
+brew install prek
 ```
