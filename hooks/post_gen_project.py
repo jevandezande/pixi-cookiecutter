@@ -203,8 +203,8 @@ def git_hooks() -> None:
     call("pixi run prek install")
 
 
-def setup_coding_agent(agent: str) -> None:
-    """Set up coding agent including readme and environment.
+def setup_coding_agent_files(agent: str) -> None:
+    """Set up coding agent files.
 
     Args:
         agent: coding agent name ("claude", "codex", or "none")
@@ -213,7 +213,7 @@ def setup_coding_agent(agent: str) -> None:
         return
 
     coding_agent = CodingAgent(agent.lower())
-    logger.info(f"Setting up {coding_agent} coding agent.")
+    logger.info(f"Setting up files for {coding_agent}.")
 
     # Copy agent README to appropriate filename
     source = Path("data/AGENTS_README.md")
@@ -227,6 +227,19 @@ def setup_coding_agent(agent: str) -> None:
 
     shutil.copy(source, destination)
     logger.info(f"Copied {source} to {destination}")
+
+
+def setup_coding_agent(agent: str) -> None:
+    """Set up for coding agent.
+
+    Args:
+        agent: coding agent name ("claude", "codex", or "none")
+    """
+    if agent.lower() == "none":
+        return
+
+    coding_agent = CodingAgent(agent.lower())
+    logger.info(f"Setting up {coding_agent}.")
 
     # Set up agent environment
     match coding_agent:
@@ -346,8 +359,9 @@ def main() -> None:
     update_dependencies()
     allow_direnv()
     git_hooks()
-    setup_coding_agent("{{cookiecutter.coding_agent}}")
+    setup_coding_agent_files("{{cookiecutter.coding_agent}}")
     remove_data_dir()
+    setup_coding_agent("{{cookiecutter.coding_agent}}")
     git_initial_commit()
     setup_remote("origin")
 
