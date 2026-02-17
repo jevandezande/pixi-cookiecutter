@@ -177,3 +177,6 @@ pyrightconfig.json
 
 # Pixi
 .pixi
+
+# Agents
+.claude/settings.local.json
