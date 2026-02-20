@@ -154,7 +154,7 @@ Python Version: {AGENT: read from pyproject.toml}
 
 Key configuration files:
 - `pyproject.toml` - Project metadata, dependencies, all tool configuration
-- `.pre-commit-config.yaml` - Prek hook configuration
+- `prek.toml` - Prek hook configuration
 - `.coveragerc` - Test coverage settings
 - `.editorconfig` - Editor formatting settings
 
@@ -312,8 +312,6 @@ Configuration:
 
 Both test files in `tests/` and docstring examples in source code are automatically discovered and run
 
-Use this table to quickly locate where settings are defined.
-
 ## Testing
 
 ### Test structure
@@ -349,16 +347,16 @@ def add(a: int, b: int) -> int:
 
 {AGENT: read .coveragerc and update configuration summary here}
 
-- Source `{{cookiecutter.package_name}}`
-- Omitted `{{cookiecutter.package_name}}/__main__.py`
+- Source: `{{cookiecutter.package_name}}`
+- Omitted: `{{cookiecutter.package_name}}/__main__.py`
 - Excluded lines: `pragma: no cover`, `__repr__`, `if self.debug`, `raise AssertionError`, `raise NotImplementedError`, `if 0:`, `if __name__ == "__main__":`, ellipsis-only lines (`...`)
 
 ## Prek hooks
 
-Configuration: `.pre-commit-config.yaml`
+Configuration: `prek.toml`
 
 Hooks enabled:
-{AGENT: read .pre-commit-config.yaml and update list of hooks with ids and versions here}
+{AGENT: read prek.toml and update list of hooks with ids and versions here}
 
 1. check-yaml - Validate YAML syntax
 2. check-toml - Validate TOML syntax

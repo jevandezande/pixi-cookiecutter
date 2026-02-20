@@ -137,7 +137,7 @@ Python Version: >=3.12
 
 Key configuration files:
 - `pyproject.toml` - Project metadata, dependencies, all tool configuration
-- `.pre-commit-config.yaml` - Prek hook configuration
+- `prek.toml` - Prek hook configuration
 - `.coveragerc` - Test coverage settings
 - `.editorconfig` - Editor formatting settings
 
@@ -305,7 +305,7 @@ def add(a: int, b: int) -> int:
 
 ## Prek hooks
 
-Configuration: `.pre-commit-config.yaml`
+Configuration: `prek.toml`
 
 Hooks enabled:
 1. check-yaml - Validate YAML syntax
