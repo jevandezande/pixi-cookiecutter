@@ -200,7 +200,7 @@ def allow_direnv() -> None:
 
 def git_hooks() -> None:
     """Install pre-commit and pre-push hooks (via prek)."""
-    call("pixi run prek install")
+    call("pixi run -e dev prek install")
 
 
 def setup_coding_agent_files(agent: str) -> None:
@@ -287,7 +287,7 @@ def setup_remote(remote: str = "origin") -> None:
     Raises:
         ValueError: if the privacy option is not valid
     """
-    if "{{cookiecutter.github_setup}}" != "None":  # type: ignore [comparison-overlap]  # noqa: PLR0133
+    if "{{cookiecutter.github_setup}}" != "None":  # noqa: PLR0133
         github_setup("{{cookiecutter.github_setup}}", remote)
     else:
         git_add_remote(remote, "{{cookiecutter.project_url}}")
