@@ -356,16 +356,19 @@ def add(a: int, b: int) -> int:
 Configuration: `prek.toml`
 
 Hooks enabled:
-{AGENT: read prek.toml and update list of hooks with ids and versions here}
+{AGENT: read .pre-commit-config.yaml and update list of hooks with ids and versions here}
 
-1. check-yaml - Validate YAML syntax
-2. check-toml - Validate TOML syntax
-3. end-of-file-fixer - Ensure single newline at EOF
-4. trailing-whitespace - Remove trailing whitespace
-5. ruff-format - Format Python code
-6. ruff-check - Lint Python code
-7. ty - Type check Python code
-8. pytest - Run test suite
+From `builtin`:
+`check-yaml` - Validate YAML syntax
+`check-toml` - Validate TOML syntax
+`end-of-file-fixer` - Ensure single newline at EOF
+`trailing-whitespace` - Remove trailing whitespace
+
+Local hooks:
+`ruff-format` - Format Python code (`uv run ruff format .`)
+`ruff-check` - Lint Python code (`uv run ruff check . --fix`)
+`ty` - Type check Python code
+`pytest` - Run test suite
 
 Behavior:
 - Stages: `pre-commit` and `pre-push`
