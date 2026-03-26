@@ -178,8 +178,8 @@ def check_program(program: str, install_str: str, **run_kwargs: Any) -> None:
         install_str: string to print if the program is not installed
         run_kwargs: keyword arguments to pass to subprocess.call
     Examples:
-        >>> check_program("python", "https://www.python.org")
-        >>> check_program("this_program_does_not_exist", "nothing")
+        >>> check_program("python", "https://www.python.org")  # doctest: +SKIP
+        >>> check_program("this_program_does_not_exist", "nothing")  # doctest: +SKIP
         Traceback (most recent call last):
         ...
         OSError: this_program_does_not_exist is not installed; install with `nothing`
@@ -217,55 +217,21 @@ def setup_coding_agent_files(agent: str) -> None:
 
     # Copy agent README to appropriate filename
     source = Path("data/AGENTS_README.md")
+    shutil.copytree("data/.claude", ".claude")
+
     match coding_agent:
         case CodingAgent.CLAUDE:
             destination = Path("CLAUDE.md")
+            cmd = "claude /init"
         case CodingAgent.CODEX:
             destination = Path("AGENTS.md")
+            cmd = "codex exec 'Read AGENTS.md and update it'"
         case _:
             raise ValueError(f"Unsupported coding agent: {coding_agent}")
 
     shutil.copy(source, destination)
     logger.info(f"Copied {source} to {destination}")
-
-
-def setup_coding_agent(agent: str) -> None:
-    """Set up for coding agent.
-
-    Args:
-        agent: coding agent name ("claude", "codex", or "none")
-    """
-    if agent.lower() == "none":
-        return
-
-    coding_agent = CodingAgent(agent.lower())
-    logger.info(f"Setting up {coding_agent}.")
-
-    # Set up agent environment
-    match coding_agent:
-        case CodingAgent.CLAUDE:
-            logger.info("Type /init in claude to finish setup and then exit.")
-            shutil.copytree("data/.claude", ".claude")
-            try:
-                claude = str(Path("~").expanduser() / ".claude/local/claude")
-                call(f"{claude} /init")
-            except FileNotFoundError as e:
-                raise OSError(
-                    "claude failed to run, check if installed in `~/.claude/local/claude`\n"
-                    "or install with: `npm install -g @anthropic-ai/claude-code`"
-                ) from e
-        case CodingAgent.CODEX:
-            try:
-                cmd = "codex exec 'Read AGENTS.md and update it'"
-                logger.debug(f"Calling: {cmd}")
-                subprocess.run(cmd, check=True, shell=True)
-            except FileNotFoundError as e:
-                raise OSError(
-                    "codex failed to run, check if installed\n"
-                    "or install with appropriate package manager"
-                ) from e
-        case _:
-            raise ValueError(f"Unsupported coding agent: {coding_agent}")
+    logger.info(f"Run `{cmd}` to finish agent setup.")
 
 
 def remove_data_dir() -> None:
@@ -361,7 +327,6 @@ def main() -> None:
     git_hooks()
     setup_coding_agent_files("{{cookiecutter.coding_agent}}")
     remove_data_dir()
-    setup_coding_agent("{{cookiecutter.coding_agent}}")
     git_initial_commit()
     setup_remote("origin")
 

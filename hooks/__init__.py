@@ -1,1 +1,1 @@
-"""Cookiecutter hooks."""
+"""Hooks for building package."""

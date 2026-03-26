@@ -12,9 +12,35 @@ hooks = [
 
 [[repos]]
 repo = "local"
-hooks = [
-  { id = "ruff-format", name = "ruff-format", language = "system", entry = "pixi run fmt",   types = ["python"], pass_filenames = false },
-  { id = "ruff-check",  name = "ruff-check",  language = "system", entry = "pixi run lint",  types = ["python"], pass_filenames = false },
-  { id = "ty",          name = "ty",          language = "system", entry = "pixi run types", types = ["python"], pass_filenames = false },
-  { id = "pytest",      name = "pytest",      language = "system", entry = "pixi run test",  types = ["python"], pass_filenames = false },
-]
+
+[[repos.hooks]]
+id = "ruff-format"
+name = "ruff-format"
+language = "system"
+entry = "pixi run fmt"
+types = ["python"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "ruff-check"
+name = "ruff-check"
+language = "system"
+entry = "pixi run lint"
+types = ["python"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "ty"
+name = "ty"
+language = "system"
+entry = "pixi run types"
+types = ["python"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "pytest"
+name = "pytest"
+language = "system"
+entry = "pixi run test"
+types = ["python"]
+pass_filenames = false

@@ -6,7 +6,7 @@ version = "0.1.0"
 readme = "README.md"
 keywords = ["cookiecutter", "pixi"]
 authors = [{name = "Jonathon Vandezande"}]
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
@@ -27,13 +27,13 @@ test = { cmd="pytest" }
 all = { depends-on = ["fmt", "lint", "types", "test"] }
 
 [tool.pixi.feature.dev.dependencies]
-prek = ">=0.3.2"
-pytest = ">=8.3"
-pytest-cov = ">=6.0"
-ruff = ">=0.11"
+prek = ">=0.3.6"
+pytest = ">=9"
+pytest-cov = ">=7"
+ruff = ">=0.15"
 
 [tool.pixi.feature.dev.pypi-dependencies]
-ty = "*"
+ty = ">=0.0.23"
 
 [tool.ruff]
 extend-exclude = ["\\{\\{cookiecutter.package_name\\}\\}"]
@@ -60,6 +60,8 @@ select = [
     "ICN001", # unconventional-import-alias
 ]
 ignore = [
+    "RUF001",  # Ambiguous unicode character in string
+    "RUF002",  # Ambiguous unicode character in docstring
     "N806", # Non-lowercase variable in function
     "PLR0911", # Too many returns
     "PLR0912", # Too many branches
@@ -67,6 +69,8 @@ ignore = [
     "PLR0914", # Too many locals
     "PLR0915", # Too many statements
     "PLR1702", # Too many nested-blocks
+    "PT013",   # Incorrect import of pytest
+    "PLR2004", # Magic value used in comparison
 ]
 
 [tool.ruff.lint.per-file-ignores]

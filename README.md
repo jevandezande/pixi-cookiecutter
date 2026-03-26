@@ -14,7 +14,7 @@
 - Formatting and linting with [ruff](https://github.com/charliermarsh/ruff)
 - Static typing with [ty](https://github.com/astral-sh/ty)
 - Testing with [pytest](https://docs.pytest.org/en/latest/)
-- Git hooks that run all the above with [pre-commit](https://pre-commit.com/)
+- Git hooks that run all the above with [prek](https://prek.j178.dev)
 - Continuous integration with [GitHub Actions](https://github.com/features/actions)
 - Code coverage with [Codecov](https://docs.codecov.com/docs)
 
@@ -23,8 +23,8 @@
 While all of the steps are automated, you will need to first install `pixi`, `cookiecutter`, and `direnv`, and optionally install the [GitHub-CLI](https://cli.github.com/).
 
 ```sh
-curl -fsSL https://pixi.sh/install.sh | bash
-pixi global install cookiecutter direnv
+curl -fsSL https://pixi.sh/install.sh | sh
+curl -sfL https://direnv.net/install.sh | bash
 
 # Optional
 curl -sS https://webi.sh/gh | sh
@@ -40,7 +40,8 @@ The cookiecutter will automagically
 - Generate a project with the input configuration
 - Initialize git
 - Setup environment
-- Setup pre-commit and pre-push hooks
+- Setup pre-commit and pre-push hooks (via prek)
+- Setup your preferred coding agent (if any)
 - Make initial commit
 - Sets up remote on GitHub (optional)
 
@@ -52,4 +53,4 @@ The cookiecutter will automagically
 
 Read [notes](notes.md) for more tips.
 
-If you don't need packages from conda repositores, check out `uv` and the [uv-cookiecutter](https://github.com/jevandezande/uv-cookiecutter).
+If you don't need packages from conda, check out `uv` and the [uv-cookiecutter](https://github.com/jevandezande/uv-cookiecutter).
