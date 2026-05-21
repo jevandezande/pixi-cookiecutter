@@ -4,8 +4,8 @@ default_stages = ["pre-commit", "pre-push"]
 [[repos]]
 repo = "builtin"
 hooks = [
-  { id = "check-yaml" },
   { id = "check-toml" },
+  { id = "check-yaml" },
   { id = "end-of-file-fixer" },
   { id = "trailing-whitespace" },
 ]
