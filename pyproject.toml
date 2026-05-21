@@ -22,18 +22,21 @@ dev = { features = ["dev"], solve-group = "default"}
 [tool.pixi.feature.dev.tasks]
 fmt = { cmd="ruff format hooks" }
 lint = { cmd="ruff check hooks --fix" }
+mdfmt = { cmd="rumdl fmt ." }
+mdlint = { cmd="rumdl check . --fix" }
 types = { cmd="ty check hooks" }
 test = { cmd="pytest" }
-all = { depends-on = ["fmt", "lint", "types", "test"] }
+all = { depends-on = ["fmt", "lint", "mdfmt", "mdlint", "types", "test"] }
 
 [tool.pixi.feature.dev.dependencies]
-prek = ">=0.3.6"
+prek = ">=0.3.13"
 pytest = ">=9"
 pytest-cov = ">=7"
 ruff = ">=0.15"
 
 [tool.pixi.feature.dev.pypi-dependencies]
-ty = ">=0.0.23"
+rumdl = ">=0.1.91"
+ty = ">=0.0.34"
 
 [tool.ruff]
 extend-exclude = ["\\{\\{cookiecutter.package_name\\}\\}"]

@@ -1,38 +1,48 @@
 # Notes
+
 ## Configuring Pixi
 
 If installing programs with pixi (recommended), make sure that `~/.pixi/bin`
 is in your path by adding the following to your .zshrc/.bashrc/.profile
+
 ```sh
 export PATH=$PATH:~/.pixi/bin
 ```
+
 ### Installing pixi
+
 ```sh
 curl -fsSL https://pixi.sh/install.sh | bash
 ```
 
 ## Cookiecutter
+
 While cookiecutter doesn't need to be installed globally if running the
 cookiecutter from within this project, it is needed if you want to run this
 cookiecutter without separately downloading it.
 
 ### Installing cookiecutter
+
 ```sh
 pixi global install cookiecutter
 ```
 
 ## Configuring Pixi Cookiecutter
+
 Make a [config file](https://cookiecutter.readthedocs.io/en/stable/advanced/user_config.html)
 (see [template_config.yml](template_config.yml)) with default settings and save
 it as a `.cookiecutterrc` or use it directly via: `--config-file cookiecutter.yml`
 
 ## Adding project dependencies
+
 Dependencies can be specified in a list, with the @ operator to specify
 versions: `dep1@* dep2 dep3@version`. Dependencies that are not tagged to a
 specific version (e.g. `dep2`) will have a "\*" appended
 
 ## Project Tools
+
 ### Act
+
 [act](https://github.com/nektos/act) runs GitHub Actions locally in a docker
 container. This makes sure all tests are independent of system settings, and
 should replicate running these actions on GitHub. One can act as a variety of
@@ -45,14 +55,17 @@ act schedule
 ```
 
 #### Installing act
+
 ```sh
 pixi global install act
 ```
 
 ### Direnv
+
 [direnv](https://pixi.sh/latest/integration/third_party/direnv) can automagically load environment variables and the pixi shell.
 
 #### Installing direnv
+
 ```sh
 pixi global install direnv
 ```
@@ -61,11 +74,13 @@ Warning: if installed simultaneously from multiple sources, bad things can happe
 
 Make sure that direnv is available in your shell by adding the following to your
 .zshrc/.bashrc/.profile (swap zsh for the name of your shell).
+
 ```sh
 eval "$(direnv hook zsh)"
 ```
 
 ### GitHub-CLI
+
 [GitHub-CLI](https://cli.github.com/) can create a new repository on GitHub and
 provides many useful additional tools. My favorites:
 
@@ -77,23 +92,29 @@ provides many useful additional tools. My favorites:
 - [poi](https://github.com/seachicken/gh-poi) - safely cleans up old local branches
 
 #### Installing GitHub-CLI
+
 ```sh
 curl -sS https://webi.sh/gh | sh
 ```
 
 ### Prek
+
 [prek](https://prek.j178.dev) runs formatting, linting, and other hooks
 on `git commit`.
 
 #### Installing prek
+
 Prek comes installed with the pixi package, but if you want to install it
 globally:
+
 ```sh
 pixi global install prek
 ```
 
 ### Alternative installation methods
+
 #### Act
+
 ```sh
 # Brew
 brew install act
@@ -102,6 +123,7 @@ gh extension install nektos/gh-act
 ```
 
 #### Cookiecutter
+
 ```sh
 # Apt
 apt install cookiecutter
@@ -110,6 +132,7 @@ brew install cookiecutter
 ```
 
 #### Direnv
+
 ```sh
 # Apt
 apt install direnv
@@ -118,6 +141,7 @@ brew install direnv
 ```
 
 #### GitHub-CLI
+
 ```sh
 # Apt
 apt install gh
@@ -126,6 +150,7 @@ brew install gh
 ```
 
 #### Prek
+
 ```sh
 # Apt
 apt install prek

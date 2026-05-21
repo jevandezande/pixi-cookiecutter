@@ -101,6 +101,7 @@ def test_low_sodium_spam() -> None:
 ```
 
 Regression tests verify:
+
 - Previously-broken behavior is fixed and stays fixed
 - A wider range of code paths (e.g., all solvents, all supported methods)
 - Edge cases that are expensive to test on every CI run
@@ -111,7 +112,6 @@ Use pytest fixtures for any setup that is repeated across multiple tests. Place 
 
 - **Within a package:** `tests/conftest.py`
 - **Shared across packages:** not currently applicable; each package has its own `conftest.py`
-
 
 ## Imports
 

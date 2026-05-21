@@ -15,6 +15,7 @@ Required for: all public modules, classes, functions, and methods
 3. Only use single backticks (e.g. `Spam`, not ``Spam``)
 
 ## Example
+
 ```python
 def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[str, int]:
     """Process spam counts, dropping those below threshold
@@ -36,6 +37,7 @@ def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[
 ```
 
 ## Incorrect example (do not do this!)
+
 ```python
 def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[str, int]:
     """Process spam counts, dropping those below threshold

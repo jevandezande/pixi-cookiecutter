@@ -11,6 +11,8 @@ allowed-tools:
   - Bash
 ---
 
+# Clean Up Code
+
 Do a final cleanup polish pass on the code in $ARGUMENTS (or the current package if no argument given).
 
 Use the `write-code` skill to understand code conventions.

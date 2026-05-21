@@ -15,6 +15,7 @@ The goal of this document is to provide guidance when coding in this repository.
 Python version: >=3.12
 
 ## Before every commit
+
 - Ensure all code has type annotations
 - Add Google-style docstrings (NO types, NO leading articles)
 - Run checks: `prek -a`
@@ -36,11 +37,12 @@ See skill `write-docstrings`
 - Use `|` for union types: `str | None`
 - Avoid `from __future__ import annotations`
 - Use modern numpy type hints where useful, and use TypeAlias to make code more readable, e.g.
-    - `type Matrix[T: np.generic] = np.ndarray[tuple[int, int], np.dtype[T]]`
+  - `type Matrix[T: np.generic] = np.ndarray[tuple[int, int], np.dtype[T]]`
 
 ### Code formatting
 
 Via ruff
+
 - Line length: 100
 - Indentation: 4 spaces (no tabs except Makefiles)
 
@@ -54,6 +56,7 @@ Via ruff
 - Private attributes/methods: _leading_underscore
 
 ### Imports
+
 - Absolute imports preferred
 - Group imports: standard library, third-party, local
 - No wildcard imports (`from module import *`) except in `__init__.py`
@@ -61,11 +64,13 @@ Via ruff
 - Do not use import statements within a function unless absolutely necessary
 
 ### Error handling
+
 - Prefer specific exceptions; define custom exceptions for domain errors
   (e.g. `SpamTypeError(ValueError)`, `SpamEatingError(RuntimeError)`)
 - Avoid bare `except:` clauses
 
 ### General style
+
 - Use f-strings for string formatting
 - Prefer list/dict comprehensions over loops when appropriate
 - Use `pathlib.Path` for file operations instead of `os.path`
@@ -124,7 +129,7 @@ If Claude is already working in this directory, offer to start a new worktree.
 Create a new branch for all new work (avoid developing on master)
 
 e.g.
-`git worktree add ../{package_name}-{feature_name} && cd ../{package_name}-{feature_name}`  # optional
+`git worktree add ../{package_name}-{feature_name} && cd ../{package_name}-{feature_name}` # optional
 `git switch -c feat/jalapeno_spam`
 
 Break up work into manageable commits, keeping track of what changed in each commit.
@@ -138,6 +143,7 @@ If a worktree was created, offer to clean it up.
 ### Commit guidelines
 
 Format: conventional commits recommended
+
 - `feat:` - new features
 - `fix:` - bug fixes
 - `docs:` - documentation changes
@@ -148,6 +154,7 @@ Format: conventional commits recommended
 Never include Claude as a co-author on commits.
 
 #### Example
+
 ```bash
 git commit -m "feat: add Jalapeno Spam
 
@@ -161,33 +168,36 @@ Use skill `write-docstrings`
 
 ## Additional resources
 
-- pixi documentation: https://pixi.sh
-- ruff documentation: https://docs.astral.sh/ruff
-- ty documentation: https://github.com/astral-sh/ty
-- pytest documentation: https://docs.pytest.org
-- prek documentation: https://prek.j178.dev
-- Google docstring style: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
-
+- pixi documentation: <https://pixi.sh>
+- ruff documentation: <https://docs.astral.sh/ruff>
+- ty documentation: <https://github.com/astral-sh/ty>
+- pytest documentation: <https://docs.pytest.org>
+- prek documentation: <https://prek.j178.dev>
+- Google docstring style: <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>
 
 ## Troubleshooting
 
 ### Prek hook failures
 
 Formatting issues:
+
 - Usually auto-fixed by ruff
 - Re-stage files: `git add .`
 - Try committing again
 
 Lint issues:
+
 - Read error message for specific rule
 - Fix; if `# noqa: <rule>` if absolutely necessary, ask before adding
 
 Type issues:
+
 - Add missing type annotations
 - Fix type mismatches
 - Use `pixi run types` to verify locally
 
 Test failures:
+
 - Fix failing tests or code
 - Run `pixi run test -v` for detailed output
 - Run specific test: `pixi run test tests/test_file.py::test_name`

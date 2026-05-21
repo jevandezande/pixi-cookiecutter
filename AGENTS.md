@@ -6,6 +6,7 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 ## How to use this document
 
 ### When to read this file
+
 - First time working on this repository
 - Before making any code changes or commits
 - When unsure about code conventions or tooling
@@ -15,6 +16,7 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 This project uses Claude Skills. You must use the `skill` tool to load `write-code`, `write-docstrings`, and `write-tests` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
 
 ## When in doubt
+
 - Check the skills loaded via the `skill` tool
 - Run individual tools to identify issues
 - Ask user for clarification on ambiguous requirements
@@ -24,6 +26,7 @@ This project uses Claude Skills. You must use the `skill` tool to load `write-co
 Purpose: Cookiecutter template for pixi-based Python projects.
 
 Structure:
+
 - `{{cookiecutter.package_name}}/` - cookiecutter template root (generated project)
 - `hooks/` - cookiecutter hooks and tests
 - `.github/workflows/` - CI/CD configuration
@@ -33,6 +36,7 @@ Structure:
 Python Version: >=3.13
 
 Key configuration files:
+
 - `pyproject.toml` - Project metadata, dependencies, all tool configuration
 - `prek.toml` - Prek hook configuration
 - `.coveragerc` - Test coverage settings

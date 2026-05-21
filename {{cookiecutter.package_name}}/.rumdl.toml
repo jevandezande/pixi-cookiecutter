@@ -1,0 +1,20 @@
+[global]
+
+disable = [
+    "MD013",  # line length
+    "MD033",  # no inline HTML
+]
+
+[per-file-ignores]
+".claude/**/*.md" = ["MD041"]  # skill files start with instructions, not headings
+
+exclude = [
+    ".git",
+    ".pixi",
+    "node_modules",
+    "vendor",
+    "dist",
+    "build",
+]
+
+respect-gitignore = true

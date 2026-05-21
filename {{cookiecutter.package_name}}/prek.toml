@@ -14,6 +14,22 @@ hooks = [
 repo = "local"
 
 [[repos.hooks]]
+id = "rumdl-fmt"
+name = "rumdl-fmt"
+language = "system"
+entry = "pixi run mdfmt"
+types = ["markdown"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "rumdl-check"
+name = "rumdl-check"
+language = "system"
+entry = "pixi run mdlint"
+types = ["markdown"]
+pass_filenames = false
+
+[[repos.hooks]]
 id = "ruff-format"
 name = "ruff-format"
 language = "system"
