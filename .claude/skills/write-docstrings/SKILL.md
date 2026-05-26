@@ -10,15 +10,17 @@ Required for: all public modules, classes, functions, and methods
 
 ## Format: Google-style
 
-1. Do not place type information in docstrings - use type annotations only
-2. Do not use leading articles in parameter, return, and error descriptions "a", "an", or "the"
-3. Only use single backticks (e.g. `Spam`, not ``Spam``)
+1. First line is a simple summary in imperative or indicative mood, ending in a period
+2. Use sections when relevant: `Args`, `Returns`, `Raises`, `Examples`
+3. Do not place type information in docstrings, use type annotations only
+4. Do not use leading articles in parameter, return, and error descriptions "a", "an", or "the"
+5. Only use single backticks (e.g. `Spam`, not ``Spam``)
 
 ## Example
 
 ```python
 def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[str, int]:
-    """Process spam counts, dropping those below threshold
+    """Process spam counts, dropping those below threshold.
 
     Args:
         input_data: spam counts to process
@@ -40,14 +42,14 @@ def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[
 
 ```python
 def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[str, int]:
-    """Process spam counts, dropping those below threshold
+    """spam counts, dropping those below threshold                 # ❌ Missing trailing period, needs sentence case, should be in imperative or indicative mood
 
     Args:
-        input_data (list[str]): A list of spam counts to process.  # ❌ Has type and article
-        threshold (int): A minimum count threshold for inclusion.  # ❌ Has type and article
+        input_data (list[str]): A list of spam counts to process.  # ❌ Has type, article, and unnecessary trailing period
+        threshold (int): Minimum count threshold for inclusion.    # ❌ Has type, article, and sentence-case description
 
     Returns:
-        dict[str, int]: A dictionary mapping categories.       # ❌ Has type and article
+        dict[str, int]: A dictionary mapping categories.           # ❌ Has type, article, and unnecessary trailing period
     """
 ```
 
