@@ -16,7 +16,9 @@ Follow these conventions when writing or modifying tests in this codebase.
 
 ## File and Function Structure
 
-Tests live in `tests/` within each package. Name files `test_<module>.py`. Use plain functions — never classes:
+Tests live in `tests/` within each package.
+Name files `test_<module>.py`.
+Use plain functions, never classes:
 
 ```python
 """Tests for the Spam."""
@@ -35,6 +37,7 @@ def test_classic_spam() -> None:
 
 - Add a module-level docstring to every test file.
 - Give each test function a Google-style one-line docstring.
+- Define module-level structure constants (e.g., `water`) for reuse across multiple tests. Don't reload them inside tests.
 
 ## Float Comparisons
 
@@ -112,6 +115,42 @@ Use pytest fixtures for any setup that is repeated across multiple tests. Place 
 
 - **Within a package:** `tests/conftest.py`
 - **Shared across packages:** not currently applicable; each package has its own `conftest.py`
+
+## Documentation
+
+Docstrings should concisely state what is being tested in the initial sentence.
+Additional information about why should be placed in the follow-up paragraph.
+If available, include the issue number.
+Do not explain code in tests, only what is being tested
+
+Comments should be used sparingly and only when targetted information is needed
+(e.g. the value a test would be if something weren't working)
+
+### Example
+
+```python
+def test_sum_on_negatives() -> None:
+    """Sums of negative numbers should be negative.
+
+    #153 found that sums of negative numbers were positive.
+    """
+    # previously 5
+    assert sum(-2, -3) == -5
+    assert sum(-1.3, -4.5) == -5.8
+```
+
+### Incorrect example (do not do this!)
+
+```python
+def test_sum() -> None:  #  ❌ not descriptive enough
+    """Check negative sums.  # ❌ not descriptive enough
+
+    Fixes #153  #  ❌ does not describe the problem
+    """
+    # The sum function adds two numbers  #  ❌ don't add code description as comments
+    assert sum(-2, -3) == -5
+    assert sum(-1.3, -4.5) == -5.8
+```
 
 ## Imports
 
