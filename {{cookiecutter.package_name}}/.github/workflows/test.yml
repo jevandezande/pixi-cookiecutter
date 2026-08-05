@@ -5,6 +5,13 @@ on:
   push:
     branches: master
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     strategy:
@@ -27,6 +34,7 @@ jobs:
           pixi-version: v0.66.0
           cache: true
           environments: dev
+          locked: true
 
       - name: Check TOML/YAML/whitespace
         run: |
@@ -36,17 +44,17 @@ jobs:
             trailing-whitespace \
             end-of-file-fixer
 
-      - run: pixi run mdfmt
-      - run: pixi run mdlint
+      - run: pixi run mdfmt-check
+      - run: pixi run mdlint-check
 
-      - run: pixi run fmt
-      - run: pixi run lint
+      - run: pixi run fmt-check
+      - run: pixi run lint-check
 
       - run: pixi run types
 
       - run: pixi run test --cov --cov-report=xml
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

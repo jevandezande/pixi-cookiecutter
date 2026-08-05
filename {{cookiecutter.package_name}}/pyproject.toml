@@ -7,7 +7,9 @@ license = "{{cookiecutter.license}}"
 version = "0.0.1"
 readme = "README.md"
 keywords = []
+{%- if cookiecutter.author_name %}
 authors = [{name = "{{cookiecutter.author_name}}"}]
+{%- endif %}
 requires-python = ">={python_version}"
 
 [tool.pixi.workspace]
@@ -33,6 +35,13 @@ types = { cmd="ty check" }
 test = { cmd="pytest" }
 all = { depends-on = ["fmt", "lint", "mdfmt", "mdlint", "types", "test"] }
 
+# Non-mutating variants for CI
+fmt-check = { cmd="ruff format . --check --diff" }
+lint-check = { cmd="ruff check ." }
+mdfmt-check = { cmd="rumdl fmt . --check --diff" }
+mdlint-check = { cmd="rumdl check ." }
+check = { depends-on = ["fmt-check", "lint-check", "mdfmt-check", "mdlint-check", "types", "test"] }
+
 [tool.pixi.feature.dev.dependencies]
 pytest = ">=9"
 pytest-cov = ">=7"
@@ -45,6 +54,7 @@ rumdl = ">=0.1.91"
 ty = ">=0.0.34"
 
 [tool.ruff]
+extend-exclude = ["*.md"]
 line-length = {{cookiecutter.line_length}}
 
 [tool.ruff.lint]
@@ -93,6 +103,22 @@ addopts = "--doctest-modules --durations=5 -m 'not regression'"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 markers = [
     "regression: tests to make sure bugs stay closed",
+]
+
+[tool.coverage.run]
+source = ["{{cookiecutter.package_name}}"]
+omit = ["{{cookiecutter.package_name}}/__main__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    'pragma: no cover',
+    'def __repr__',
+    'if self\.debug',
+    'raise AssertionError',
+    'raise NotImplementedError',
+    'if 0:',
+    'if __name__ == .__main__.:',
+    '^\s*\.\.\.',
 ]
 
 [build-system]

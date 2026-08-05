@@ -16,7 +16,7 @@ Follow these conventions when writing or modifying tests in this codebase.
 
 ## File and Function Structure
 
-Tests live in `tests/` within each package.
+Tests live in `hooks/`, alongside the code they test (`testpaths` in `pyproject.toml`).
 Name files `test_<module>.py`.
 Use plain functions, never classes:
 
@@ -113,8 +113,7 @@ Regression tests verify:
 
 Use pytest fixtures for any setup that is repeated across multiple tests. Place fixtures in `conftest.py`:
 
-- **Within a package:** `tests/conftest.py`
-- **Shared across packages:** not currently applicable; each package has its own `conftest.py`
+- `hooks/conftest.py`
 
 ## Documentation
 

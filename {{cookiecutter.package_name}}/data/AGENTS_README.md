@@ -56,9 +56,8 @@ Python Version: {AGENT: read from pyproject.toml}
 
 Key configuration files:
 
-- `pyproject.toml` - project metadata, dependencies, all tool configuration
+- `pyproject.toml` - project metadata, dependencies, all tool configuration (ruff, pytest, coverage)
 - `prek.toml` - Prek hook configuration
-- `.coveragerc` - test coverage settings
 - `.editorconfig` - editor formatting settings
 
 {AGENT: If CLAUDE, keep this Claude Code integration section, else delete}

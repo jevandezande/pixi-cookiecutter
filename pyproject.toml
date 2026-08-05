@@ -28,6 +28,13 @@ types = { cmd="ty check hooks" }
 test = { cmd="pytest" }
 all = { depends-on = ["fmt", "lint", "mdfmt", "mdlint", "types", "test"] }
 
+# Non-mutating variants for CI
+fmt-check = { cmd="ruff format hooks --check --diff" }
+lint-check = { cmd="ruff check hooks" }
+mdfmt-check = { cmd="rumdl fmt . --check --diff" }
+mdlint-check = { cmd="rumdl check ." }
+check = { depends-on = ["fmt-check", "lint-check", "mdfmt-check", "mdlint-check", "types", "test"] }
+
 [tool.pixi.feature.dev.dependencies]
 prek = ">=0.3.13"
 pytest = ">=9"
@@ -39,7 +46,8 @@ rumdl = ">=0.1.91"
 ty = ">=0.0.34"
 
 [tool.ruff]
-extend-exclude = ["\\{\\{cookiecutter.package_name\\}\\}"]
+# *.md keeps ruff from reformatting Python code blocks in documentation
+extend-exclude = ["\\{\\{cookiecutter.package_name\\}\\}", "*.md"]
 line-length = 100
 
 [tool.ruff.lint]
@@ -86,6 +94,30 @@ convention = "google"
 testpaths = ["hooks"]
 addopts = "--doctest-modules"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
+
+[tool.coverage.run]
+source = ["hooks"]
+
+[tool.coverage.report]
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    'pragma: no cover',
+
+    # Don't complain about missing debug-only code:
+    'def __repr__',
+    'if self\.debug',
+
+    # Don't complain if tests don't hit defensive assertion code:
+    'raise AssertionError',
+    'raise NotImplementedError',
+
+    # Don't complain if non-runnable code isn't run:
+    'if 0:',
+    'if __name__ == .__main__.:',
+
+    # Don't complain if an ellipsis isn't run (typically in an abstractmethod):
+    '^\s*\.\.\.',
+]
 
 [build-system]
 build-backend = "hatchling.build"

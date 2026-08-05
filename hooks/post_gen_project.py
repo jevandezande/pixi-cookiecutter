@@ -85,6 +85,8 @@ def set_license(license: str | None = "MIT") -> None:
     with open("LICENSE") as f:
         contents = f.read().replace("{year}", f"{datetime.now().year}")
         contents = contents.replace("{author_name}", "{{cookiecutter.author_name}}")
+
+    contents = "\n".join(line.rstrip() for line in contents.split("\n"))
     with open("LICENSE", "w") as f:
         f.write(contents)
 

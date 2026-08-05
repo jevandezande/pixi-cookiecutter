@@ -37,7 +37,6 @@ Python Version: >=3.13
 
 Key configuration files:
 
-- `pyproject.toml` - Project metadata, dependencies, all tool configuration
+- `pyproject.toml` - Project metadata, dependencies, all tool configuration (ruff, pytest, coverage)
 - `prek.toml` - Prek hook configuration
-- `.coveragerc` - Test coverage settings
 - `.editorconfig` - Editor formatting settings

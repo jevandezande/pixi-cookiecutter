@@ -12,7 +12,7 @@ Use this skill when writing, reviewing, or editing code.
 
 The goal of this document is to provide guidance when coding in this repository. All code should be pythonic and easy to read.
 
-Python version: >=3.12
+Python version: >=3.13
 
 ## Before every commit
 
@@ -74,10 +74,12 @@ Via ruff
 - Use f-strings for string formatting
 - Prefer list/dict comprehensions over loops when appropriate
 - Use `pathlib.Path` for file operations instead of `os.path`
-- Use dataclasses and prefer the settings `slots=True` and `frozen=True`.
+- Use dataclasses and prefer the settings `slots=True` and `frozen=True`
 - Don't use `.0` to indicate floats
 - Prefer `strict=True` in `zip` and `itertools.batched`
 - Use a guard case in all `match`/`case` statements (i.e. `case _:`)
+- Don't use the filename `types.py` as it conflicts with a builtin library
+- Avoid using `cast` to achieve the correct type
 
 ## Essential commands
 
@@ -112,7 +114,7 @@ Run `direnv allow .` if you see permission errors.
 
 ## Testing
 
-- Use pytest; tests live in `tests/`; doctests are auto-discovered in source
+- Use pytest; tests live in `hooks/`; doctests are auto-discovered in source
 - Use standard pytest format (e.g. don't use classes to hold tests)
 - For float comparisons, use `approx` or `assert_almost_equal` (imported as `aae`), prefer default thresholds
 
@@ -120,7 +122,8 @@ See the skill `write-tests` for more detail, but only if actively writing tests
 
 ## CI/CD
 
-CI runs `pixi run fmt`, `pixi run lint`, `pixi run types`, and `pixi run test` per-package via GitHub Actions.
+CI runs the non-mutating `pixi run fmt-check`, `lint-check`, `mdfmt-check`, `mdlint-check`, `types`,
+and `test` tasks via GitHub Actions. Run `pixi run check` to reproduce the whole set locally.
 
 ## Git development guidelines
 
@@ -168,12 +171,12 @@ Use skill `write-docstrings`
 
 ## Additional resources
 
-- pixi documentation: <https://pixi.sh>
-- ruff documentation: <https://docs.astral.sh/ruff>
-- ty documentation: <https://github.com/astral-sh/ty>
-- pytest documentation: <https://docs.pytest.org>
-- prek documentation: <https://prek.j178.dev>
-- Google docstring style: <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>
+- [pixi](https://pixi.sh)
+- [ruff](https://docs.astral.sh/ruff)
+- [ty](https://github.com/astral-sh/ty)
+- [pytest](https://docs.pytest.org)
+- [prek](https://prek.j178.dev)
+- [Google docstring style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
 
 ## Troubleshooting
 
