@@ -5,9 +5,6 @@ disable = [
     "MD033",  # no inline HTML
 ]
 
-[per-file-ignores]
-".claude/**/*.md" = ["MD041"]  # skill files start with instructions, not headings
-
 exclude = [
     ".git",
     ".pixi",
@@ -18,3 +15,8 @@ exclude = [
 ]
 
 respect-gitignore = true
+
+[per-file-ignores]
+# Skill files start with instructions, not headings
+".claude/**/*.md" = ["MD041"]
+".agent/**/*.md" = ["MD041"]

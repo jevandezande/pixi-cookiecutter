@@ -177,6 +177,8 @@ pyrightconfig.json
 
 # Pixi
 .pixi
+{%- if cookiecutter.coding_agent == "Claude" %}
 
 # Agents
 .claude/settings.local.json
+{%- endif %}

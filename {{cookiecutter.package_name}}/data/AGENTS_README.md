@@ -32,12 +32,17 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 9. {AGENT: Delete this initial setup checklist and the ### Understanding {AGENT: ...} directives section}
 
 ## AI Skills
-
+{% if cookiecutter.coding_agent == "Claude" %}
 This project uses Claude Skills. Use the `skill` tool to load `write-code`, `write-docstrings`, and `write-tests` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
-
+{% else %}
+Conventions live in `.agent/skills/<name>/SKILL.md`. Read `write-code`, `write-docstrings`, and `write-tests` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
+{% endif %}
 ## When in doubt
-
+{% if cookiecutter.coding_agent == "Claude" %}
 - Check the skills loaded via the `skill` tool
+{%- else %}
+- Check the skills in `.agent/skills/`
+{%- endif %}
 - Run individual tools to identify issues
 - Ask user for clarification on ambiguous requirements
 
@@ -50,6 +55,7 @@ Structure:
 - `{{cookiecutter.package_name}}/` - source code (this is a flat layout)
 - `tests/` - test suite
 - `.github/workflows/` - CI/CD (test)
+- `{% if cookiecutter.coding_agent == "Claude" %}.claude{% else %}.agent{% endif %}/skills/` - coding conventions
 - {AGENT: list other important folders and confirm with user}
 
 Python Version: {AGENT: read from pyproject.toml}
@@ -59,8 +65,7 @@ Key configuration files:
 - `pyproject.toml` - project metadata, dependencies, all tool configuration (ruff, pytest, coverage)
 - `prek.toml` - Prek hook configuration
 - `.editorconfig` - editor formatting settings
-
-{AGENT: If CLAUDE, keep this Claude Code integration section, else delete}
+{%- if cookiecutter.coding_agent == "Claude" %}
 
 ## Claude Code integration
 
@@ -73,10 +78,12 @@ Claude is configured with PostToolUse hooks that run automatically after Edit or
 
 File edits trigger automatic formatting — no manual `pixi run fmt` needed. Pre-commit checks still run on commit.
 
-To modify permissions, edit `.claude/settings.local.json`.
+Project defaults live in `.claude/settings.json` (tracked by git); machine-specific overrides
+belong in `.claude/settings.local.json` (gitignored).
 
 ### Workflow impact
 
 1. File edits trigger automatic formatting - no manual `pixi run fmt` needed
 2. Pre-commit checks still run on commit - hooks are complementary, not redundant
 3. Permissions reduce interruptions for common development commands
+{%- endif %}

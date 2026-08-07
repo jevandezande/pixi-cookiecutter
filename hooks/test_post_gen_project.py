@@ -8,6 +8,22 @@ import pytest
 from hooks import post_gen_project
 
 
+@pytest.fixture
+def agent_data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Create the `data/` directory that the coding agent setup copies from."""
+    skill_path = tmp_path / "data" / "skills" / "write-code"
+    skill_path.mkdir(parents=True)
+    (skill_path / "SKILL.md").write_text("skill\n", encoding="utf-8")
+
+    claude_path = tmp_path / "data" / "claude"
+    claude_path.mkdir(parents=True)
+    (claude_path / "settings.json").write_text("{}\n", encoding="utf-8")
+    (tmp_path / "data" / "AGENTS_README.md").write_text("# Guide\n", encoding="utf-8")
+
+    monkeypatch.chdir(tmp_path)
+    return tmp_path
+
+
 def test_set_python_version_updates_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Replace {python_version} in target files."""
     workflow_path = tmp_path / ".github" / "workflows"
@@ -20,41 +36,14 @@ def test_set_python_version_updates_files(tmp_path: Path, monkeypatch: pytest.Mo
     )
 
     monkeypatch.chdir(tmp_path)
-    args = SimpleNamespace(version_info=SimpleNamespace(major=3, minor=13))
-    monkeypatch.setattr(post_gen_project, "sys", args)
 
-    post_gen_project.set_python_version()
+    post_gen_project.set_python_version("3.13")
 
     workflow_contents = (workflow_path / "test.yml").read_text(encoding="utf-8")
     pyproject_contents = (tmp_path / "pyproject.toml").read_text(encoding="utf-8")
 
     assert workflow_contents == "python: 3.13\n"
     assert pyproject_contents == 'requires-python = ">= 3.13"\n'
-    assert "{python_version}" not in workflow_contents
-    assert "{python_version}" not in pyproject_contents
-
-
-def test_set_python_version_warns_on_old_minor(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    """Warn when Python minor version is below supported minimum."""
-    workflow_path = tmp_path / ".github" / "workflows"
-    workflow_path.mkdir(parents=True)
-    (workflow_path / "test.yml").write_text("python: {python_version}\n", encoding="utf-8")
-    (tmp_path / "pyproject.toml").write_text(
-        'requires-python = ">= {python_version}"\n',
-        encoding="utf-8",
-    )
-
-    monkeypatch.chdir(tmp_path)
-    args = SimpleNamespace(version_info=SimpleNamespace(major=3, minor=11))
-    monkeypatch.setattr(post_gen_project, "sys", args)
-
-    post_gen_project.set_python_version()
-    captured = capsys.readouterr()
-    assert "should be upgraded" in captured.err
 
 
 def test_set_license_copies_and_formats(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -75,6 +64,37 @@ def test_set_license_copies_and_formats(tmp_path: Path, monkeypatch: pytest.Monk
     license_contents = (tmp_path / "LICENSE").read_text(encoding="utf-8")
     assert "2026" in license_contents
     assert "{{cookiecutter.author_name}}" in license_contents
+
+
+def test_setup_coding_agent_files_claude(agent_data: Path) -> None:
+    """Claude gets CLAUDE.md, skills in `.claude/`, and the settings it understands."""
+    post_gen_project.setup_coding_agent_files("Claude")
+
+    assert (agent_data / "CLAUDE.md").exists()
+    assert (agent_data / ".claude" / "skills" / "write-code" / "SKILL.md").exists()
+    assert (agent_data / ".claude" / "settings.json").exists()
+    assert not (agent_data / ".agent").exists()
+
+
+def test_setup_coding_agent_files_codex(agent_data: Path) -> None:
+    """Codex gets AGENTS.md and skills in `.agent/`, but no Claude-only files."""
+    post_gen_project.setup_coding_agent_files("Codex")
+
+    assert (agent_data / "AGENTS.md").exists()
+    assert (agent_data / ".agent" / "skills" / "write-code" / "SKILL.md").exists()
+    assert not (agent_data / ".agent" / "settings.json").exists()
+    assert not (agent_data / ".claude").exists()
+    assert not (agent_data / "CLAUDE.md").exists()
+
+
+def test_setup_coding_agent_files_none(agent_data: Path) -> None:
+    """No agent files are created when no agent is selected."""
+    post_gen_project.setup_coding_agent_files("None")
+
+    assert not (agent_data / ".claude").exists()
+    assert not (agent_data / ".agent").exists()
+    assert not (agent_data / "CLAUDE.md").exists()
+    assert not (agent_data / "AGENTS.md").exists()
 
 
 @pytest.mark.parametrize(

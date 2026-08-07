@@ -16,7 +16,7 @@ jobs:
   test:
     strategy:
       matrix:
-        python-version: ['3.14']
+        python-version: ['{python_version}']
         os: [ubuntu-latest]
 
     name: Python ${{ matrix.os }} ${{ matrix.python-version }}

@@ -3,20 +3,21 @@
 import logging
 import shutil
 import subprocess
-import sys
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from shutil import rmtree
 from typing import Any, Literal
+from urllib.parse import urlparse
 
-logger = logging.Logger("post_gen_project_logger")
-logger.setLevel(logging.INFO)
+logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+logger = logging.getLogger("post_gen_project")
 
 
 PROTOCOL = Literal["git", "https"]
 GITHUB_PRIVACY_OPTIONS = ["private", "internal", "public"]
-MINIMUM_PYTHON_MINOR_VERSION = 12
+DEFAULT_BRANCH = "master"
+DEFAULT_AGENT_DIR = ".agent"
+CLAUDE_AGENT_DIR = ".claude"
 
 
 class CodingAgent(str, Enum):
@@ -24,6 +25,18 @@ class CodingAgent(str, Enum):
 
     CLAUDE = "claude"
     CODEX = "codex"
+
+    @property
+    def directory(self) -> Path:
+        """Directory the agent reads its skills (and settings) from.
+
+        Examples:
+            >>> str(CodingAgent.CLAUDE.directory)
+            '.claude'
+            >>> str(CodingAgent.CODEX.directory)
+            '.agent'
+        """
+        return Path(CLAUDE_AGENT_DIR if self is CodingAgent.CLAUDE else DEFAULT_AGENT_DIR)
 
 
 def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
@@ -40,32 +53,32 @@ def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedPro
     return subprocess.run(cmd.split(), check=check, **kwargs)
 
 
-def set_python_version() -> None:
-    """Set the python version in pyproject.toml and .github/workflows/test.yml."""
-    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-    logger.info(f"Settting {python_version=}")
-    if sys.version_info.minor < MINIMUM_PYTHON_MINOR_VERSION:
-        logger.warning(
-            f"{python_version=} should be upgraded to the latest avaiable python version."
-        )
+def set_python_version(python_version: str) -> None:
+    """Set the python version in pyproject.toml and .github/workflows/test.yml.
 
-    file_names = [
-        ".github/workflows/test.yml",
-        "pyproject.toml",
+    Args:
+        python_version: `major.minor` version of python (validated in the pre-gen hook)
+    """
+    logger.info(f"Setting {python_version=}")
+
+    paths = [
+        Path(".github/workflows/test.yml"),
+        Path("pyproject.toml"),
     ]
 
-    for file_name in file_names:
-        with open(file_name) as f:
-            contents = f.read().replace("{python_version}", python_version)
-        with open(file_name, "w") as f:
-            f.write(contents)
+    for path in paths:
+        contents = path.read_text(encoding="utf-8")
+        path.write_text(contents.replace("{python_version}", python_version), encoding="utf-8")
 
 
 def set_license(license: str | None = "MIT") -> None:
-    """Copy the license file to LICENSE (if any).
+    """Write the selected license to LICENSE (if any).
 
     Args:
         license: name of the license (or None for no license)
+
+    Raises:
+        ValueError: if license is not available
     """
     if not license or license == "None":
         logger.debug("No license set")
@@ -80,22 +93,26 @@ def set_license(license: str | None = "MIT") -> None:
         except StopIteration as e:
             raise ValueError(f"{license=} not available; select from:\n{licenses}") from e
 
-    shutil.copy(f"data/licenses/{license}", "LICENSE")
+    contents = Path(f"data/licenses/{license}").read_text(encoding="utf-8")
+    contents = contents.replace("{year}", f"{datetime.now().year}")
+    contents = contents.replace("{author_name}", "{{cookiecutter.author_name}}")
 
-    with open("LICENSE") as f:
-        contents = f.read().replace("{year}", f"{datetime.now().year}")
-        contents = contents.replace("{author_name}", "{{cookiecutter.author_name}}")
-
-    contents = "\n".join(line.rstrip() for line in contents.split("\n"))
-    with open("LICENSE", "w") as f:
-        f.write(contents)
+    stripped = "\n".join(line.rstrip() for line in contents.split("\n"))
+    Path("LICENSE").write_text(stripped, encoding="utf-8")
 
     logger.debug(f"Set {license=}")
 
 
-def git_init() -> None:
-    """Initialize a git repository."""
-    call("git init")
+def git_init(default_branch: str = DEFAULT_BRANCH) -> None:
+    """Initialize a git repository.
+
+    The branch is set explicitly so it matches the branch referenced by the generated
+    workflow, README badges, and upstream configuration.
+
+    Args:
+        default_branch: name of the initial branch
+    """
+    call(f"git init -b {default_branch}")
 
 
 def process_dependency(dependency: str) -> str:
@@ -160,14 +177,13 @@ def update_dependencies() -> None:
     dependencies = process_dependencies("""{{cookiecutter.pixi_dependencies}} """.strip())
     dev_dependencies = process_dependencies("""{{cookiecutter.pixi_test_dependencies}} """.strip())
 
-    with open("pyproject.toml") as f:
-        contents = (
-            f.read()
-            .replace("{pixi_dependencies}\n", dependencies)
-            .replace("{pixi_test_dependencies}\n", dev_dependencies)
-        )
-    with open("pyproject.toml", "w") as f:
-        f.write(contents)
+    pyproject = Path("pyproject.toml")
+    contents = (
+        pyproject.read_text(encoding="utf-8")
+        .replace("{pixi_dependencies}\n", dependencies)
+        .replace("{pixi_test_dependencies}\n", dev_dependencies)
+    )
+    pyproject.write_text(contents, encoding="utf-8")
 
     call("pixi update")
 
@@ -210,6 +226,9 @@ def setup_coding_agent_files(agent: str) -> None:
 
     Args:
         agent: coding agent name ("claude", "codex", or "none")
+
+    Raises:
+        ValueError: if coding agent is not supported
     """
     if agent.lower() == "none":
         return
@@ -217,19 +236,26 @@ def setup_coding_agent_files(agent: str) -> None:
     coding_agent = CodingAgent(agent.lower())
     logger.info(f"Setting up files for {coding_agent}.")
 
-    # Copy agent README to appropriate filename
     source = Path("data/AGENTS_README.md")
-    shutil.copytree("data/.claude", ".claude")
+
+    # Created up front so agent-specific files have somewhere to land
+    agent_dir = coding_agent.directory
+    agent_dir.mkdir(parents=True, exist_ok=True)
 
     match coding_agent:
         case CodingAgent.CLAUDE:
             destination = Path("CLAUDE.md")
             cmd = "claude /init"
+            # Settings are only understood by Claude Code
+            shutil.copy("data/claude/settings.json", agent_dir / "settings.json")
         case CodingAgent.CODEX:
             destination = Path("AGENTS.md")
             cmd = "codex exec 'Read AGENTS.md and update it'"
         case _:
             raise ValueError(f"Unsupported coding agent: {coding_agent}")
+
+    shutil.copytree("data/skills", agent_dir / "skills")
+    logger.info(f"Copied skills to {agent_dir / 'skills'}")
 
     shutil.copy(source, destination)
     logger.info(f"Copied {source} to {destination}")
@@ -238,7 +264,7 @@ def setup_coding_agent_files(agent: str) -> None:
 
 def remove_data_dir() -> None:
     """Remove the data directory."""
-    rmtree("data")
+    shutil.rmtree("data")
 
 
 def git_initial_commit() -> None:
@@ -252,13 +278,39 @@ def setup_remote(remote: str = "origin") -> None:
 
     Args:
         remote: name for the remote
-    Raises:
-        ValueError: if the privacy option is not valid
     """
     if "{{cookiecutter.github_setup}}" != "None":  # noqa: PLR0133
         github_setup("{{cookiecutter.github_setup}}", remote)
-    else:
-        git_add_remote(remote, "{{cookiecutter.project_url}}")
+        return
+
+    url = "{{cookiecutter.project_url}}"
+    if not valid_remote_url(url):
+        logger.warning(f"Skipping remote setup; {url=} is incomplete.")
+        return
+
+    git_add_remote(remote, url)
+
+
+def valid_remote_url(url: str) -> bool:
+    """Check that a remote url has a hostname and no empty path segments.
+
+    Args:
+        url: url of the remote
+    Returns:
+        whether the url is complete enough to use as a remote
+    Examples:
+        >>> valid_remote_url("https://github.com/octocat/repo")
+        True
+        >>> valid_remote_url("https://github.com//repo")
+        False
+        >>> valid_remote_url("https://github.com")
+        False
+        >>> valid_remote_url("")
+        False
+    """
+    parsed = urlparse(url)
+    segments = parsed.path.split("/")[1:]
+    return bool(parsed.hostname and segments and all(segments))
 
 
 def git_add_remote(remote: str, url: str, protocol: PROTOCOL = "git") -> None:
@@ -276,13 +328,17 @@ def git_add_remote(remote: str, url: str, protocol: PROTOCOL = "git") -> None:
     call(f"git remote add {remote} {url}")
 
 
-def github_setup(privacy: str, remote: str = "origin", default_branch: str = "master") -> None:
+def github_setup(
+    privacy: str, remote: str = "origin", default_branch: str = DEFAULT_BRANCH
+) -> None:
     """Make a repository on GitHub (requires GitHub CLI).
 
     Args:
         privacy: privacy of the repository ("private", "internal", "public")
         remote: name of the remote to add
         default_branch: name of the default branch for upstream
+    Raises:
+        ValueError: if privacy option is not valid
     """
     if privacy not in GITHUB_PRIVACY_OPTIONS:
         raise ValueError(f"{privacy=} not in {GITHUB_PRIVACY_OPTIONS}")
@@ -304,7 +360,10 @@ def github_setup(privacy: str, remote: str = "origin", default_branch: str = "ma
 
 
 def notes() -> None:
-    """Print notes for the user."""
+    """Print notes for the user (if hosted on GitHub)."""
+    if not "{{cookiecutter.github_username}}":
+        return
+
     print(
         """
 If using GitHub, generate a CODECOV_TOKEN at:
@@ -321,7 +380,7 @@ TERMINATOR = "\x1b[0m"
 
 def main() -> None:
     """Run the post generation hooks."""
-    set_python_version()
+    set_python_version("{{cookiecutter.python_version}}")
     set_license("{{cookiecutter.license}}")
     git_init()
     update_dependencies()

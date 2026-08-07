@@ -6,13 +6,15 @@
     "project_url": "https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}",
     "pixi_dependencies": "",
     "pixi_test_dependencies": "",
+    "python_version": "3.14",
     "line_length": "100",
-    "license": ["MIT", "APL-2.0", "BSD-3-clause", "None"],
+    "license": ["MIT", "Apache-2.0", "BSD-3-clause", "None"],
     "github_setup": ["None", "private", "internal", "public"],
     "coding_agent": ["None", "Claude", "Codex"],
     "_copy_without_render": [".github/workflows"],
     "__prompts__": {
         "pixi_dependencies": "Pixi dependencies (e.g. numpy scipy@1.14.*)",
-        "pixi_test_dependencies": "Pixi test dependencies (e.g. pytest-xdist@>=3.6)"
+        "pixi_test_dependencies": "Pixi test dependencies (e.g. pytest-xdist@>=3.6)",
+        "python_version": "Minimum Python version (e.g. 3.14)"
     }
 }
