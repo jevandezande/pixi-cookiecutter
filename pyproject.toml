@@ -13,7 +13,7 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64"]
 
 [tool.pixi.dependencies]
-cookiecutter = ">=2.6"
+cookiecutter = ">=2.7"
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
@@ -36,14 +36,14 @@ mdlint-check = { cmd="rumdl check ." }
 check = { depends-on = ["fmt-check", "lint-check", "mdfmt-check", "mdlint-check", "types", "test"] }
 
 [tool.pixi.feature.dev.dependencies]
-prek = ">=0.3.13"
+prek = ">=0.5"
 pytest = ">=9"
 pytest-cov = ">=7"
-ruff = ">=0.15"
+ruff = ">=0.16"
 
 [tool.pixi.feature.dev.pypi-dependencies]
-rumdl = ">=0.1.91"
-ty = ">=0.0.34"
+rumdl = ">=0.2"
+ty = ">=0.0.75"
 
 [tool.ruff]
 # *.md keeps ruff from reformatting Python code blocks in documentation

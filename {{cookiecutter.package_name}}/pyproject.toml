@@ -45,13 +45,13 @@ check = { depends-on = ["fmt-check", "lint-check", "mdfmt-check", "mdlint-check"
 [tool.pixi.feature.dev.dependencies]
 pytest = ">=9"
 pytest-cov = ">=7"
-ruff = ">=0.15"
-prek = ">=0.3.13"
+ruff = ">=0.16"
+prek = ">=0.5"
 {pixi_test_dependencies}
 
 [tool.pixi.feature.dev.pypi-dependencies]
-rumdl = ">=0.1.91"
-ty = ">=0.0.34"
+rumdl = ">=0.2"
+ty = ">=0.0.75"
 
 [tool.ruff]
 extend-exclude = ["*.md"]
