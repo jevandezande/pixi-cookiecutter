@@ -24,12 +24,10 @@ def agent_data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     return tmp_path
 
 
-def test_set_python_version_updates_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Replace {python_version} in target files."""
-    workflow_path = tmp_path / ".github" / "workflows"
-    workflow_path.mkdir(parents=True)
-
-    (workflow_path / "test.yml").write_text("python: {python_version}\n", encoding="utf-8")
+def test_set_python_version_updates_pyproject(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Replace {python_version} in pyproject.toml."""
     (tmp_path / "pyproject.toml").write_text(
         'requires-python = ">= {python_version}"\n',
         encoding="utf-8",
@@ -39,10 +37,8 @@ def test_set_python_version_updates_files(tmp_path: Path, monkeypatch: pytest.Mo
 
     post_gen_project.set_python_version("3.13")
 
-    workflow_contents = (workflow_path / "test.yml").read_text(encoding="utf-8")
     pyproject_contents = (tmp_path / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert workflow_contents == "python: 3.13\n"
     assert pyproject_contents == 'requires-python = ">= 3.13"\n'
 
 

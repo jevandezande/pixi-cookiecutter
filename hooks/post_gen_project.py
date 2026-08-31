@@ -54,21 +54,18 @@ def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedPro
 
 
 def set_python_version(python_version: str) -> None:
-    """Set the python version in pyproject.toml and .github/workflows/test.yml.
+    """Set the python version in pyproject.toml.
+
+    The workflow does not need it; CI resolves python from pixi.lock.
 
     Args:
         python_version: `major.minor` version of python (validated in the pre-gen hook)
     """
     logger.info(f"Setting {python_version=}")
 
-    paths = [
-        Path(".github/workflows/test.yml"),
-        Path("pyproject.toml"),
-    ]
-
-    for path in paths:
-        contents = path.read_text(encoding="utf-8")
-        path.write_text(contents.replace("{python_version}", python_version), encoding="utf-8")
+    pyproject = Path("pyproject.toml")
+    contents = pyproject.read_text(encoding="utf-8")
+    pyproject.write_text(contents.replace("{python_version}", python_version), encoding="utf-8")
 
 
 def set_license(license: str | None = "MIT") -> None:

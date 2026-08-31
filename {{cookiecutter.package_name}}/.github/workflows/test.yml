@@ -14,20 +14,11 @@ concurrency:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        python-version: ['{python_version}']
-        os: [ubuntu-latest]
-
-    name: Python ${{ matrix.os }} ${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+    name: Test
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v7
-
-      - uses: actions/setup-python@v7
-        with:
-          python-version: ${{ matrix.python-version }}
 
       - uses: prefix-dev/setup-pixi@v0.10.2
         with:
