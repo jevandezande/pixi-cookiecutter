@@ -8,13 +8,13 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jevandezande/pixi-cookiecutter/test.yml?branch=master&logo=github-actions)](https://github.com/jevandezande/pixi-cookiecutter/actions/)
 [![Codecov](https://img.shields.io/codecov/c/github/jevandezande/pixi-cookiecutter)](https://app.codecov.io/github/jevandezande/pixi-cookiecutter)
 
-[Cookiecutter](https://github.com/audreyr/cookiecutter) for setting up [pixi](https://pixi.sh/) projects with all the necessary features for modern python development.
+[Cookiecutter](https://github.com/cookiecutter/cookiecutter) for setting up [pixi](https://pixi.sh/) projects with all the necessary features for modern python development.
 
 ## Features
 
 - Packaging with [pixi](https://prefix.dev/)
 - Environment loading with [direnv](https://direnv.net/)
-- Formatting and linting of Python with [ruff](https://github.com/charliermarsh/ruff)
+- Formatting and linting of Python with [ruff](https://github.com/astral-sh/ruff)
 - Formatting and linting of Markdown with [rumdl](http://rumdl.dev)
 - Static typing with [ty](https://github.com/astral-sh/ty)
 - Testing with [pytest](https://docs.pytest.org/en/latest/)

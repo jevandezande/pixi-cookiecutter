@@ -13,7 +13,7 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 
 ## AI Skills
 
-This project uses Claude Skills. You must use the `skill` tool to load `write-code`, `write-docstrings`, and `write-tests` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
+This project uses Claude Skills. You must use the `skill` tool to load `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
 
 ## When in doubt
 

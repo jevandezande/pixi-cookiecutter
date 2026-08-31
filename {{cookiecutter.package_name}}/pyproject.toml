@@ -72,7 +72,7 @@ select = [
     "PIE", # misc lints
     "PYI", # flake8-pyi
     "TID", # tidy imports
-    "TCH", # type-checking imports
+    "TC", # type-checking imports
     "RUF", # Ruff-specific rules
     "RSE", # flake8-raise
     "ICN001", # unconventional-import-alias
