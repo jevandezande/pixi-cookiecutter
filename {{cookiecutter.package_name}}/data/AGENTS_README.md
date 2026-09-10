@@ -65,5 +65,4 @@ belong in `.claude/settings.local.json` (gitignored).
 
 1. File edits trigger automatic formatting - no manual `pixi run fmt` needed
 2. Pre-commit checks still run on commit - hooks are complementary, not redundant
-3. Permissions reduce interruptions for common development commands
 {%- endif %}
