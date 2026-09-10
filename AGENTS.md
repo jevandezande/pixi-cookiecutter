@@ -40,3 +40,10 @@ Key configuration files:
 - `pyproject.toml` - Project metadata, dependencies, all tool configuration (ruff, pytest, coverage)
 - `prek.toml` - Prek hook configuration
 - `.editorconfig` - Editor formatting settings
+
+## Miscellaneous
+
+Agents are banned from being an author on commits or PR messages.
+Commits or PR's that contravene this directive will be rejected.
+
+Do not leave comments in the code detailing what was changed.
