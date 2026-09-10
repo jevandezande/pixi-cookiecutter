@@ -11,26 +11,6 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 - Before making any code changes or commits
 - When unsure about code conventions or tooling
 
-### Understanding {AGENT: ...} directives
-
-- Directives in curly braces starting with "AGENT:" are instructions for you
-- Execute these directives when first reading this file
-- Update the file with the actual information, replacing the directive
-- Directives marked with "must" are required; others are recommended
-- Note: This file was generated from a cookiecutter template and pre-filled some configuration, do not treat this as a template, but as the start of a new project, and ask questions where needed to clarify
-
-## Initial setup checklist
-
-1. {AGENT: You will be updating this file, do not stray from directives, do not simplify, do not delete, only improve the file}
-2. {AGENT: Read README.md and confirm project purpose with user}
-3. {AGENT: Ask for the ability to run necessary development commands, including `git commit`, `prek -a`, `pixi install`, `python`}
-4. {AGENT: Verify `pixi install` has been run - check for `.pixi/` directory or run `pixi install`}
-5. {AGENT: Verify prek hooks are installed - run `git config --get core.hooksPath` (should be empty/default) or check `.git/hooks/pre-commit` exists}
-6. {AGENT: Read pyproject.toml and update repository-specific information below}
-7. {AGENT: Run all checks once to verify environment: `prek -a`}
-8. {AGENT: After completing setup, notify user of any discrepancies found}
-9. {AGENT: Delete this initial setup checklist and the ### Understanding {AGENT: ...} directives section}
-
 ## AI Skills
 {% if cookiecutter.coding_agent == "Claude" %}
 This project uses Claude Skills. Use the `skill` tool to load `write-code`, `write-docstrings`, and `write-tests` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
@@ -48,7 +28,7 @@ Conventions live in `.agent/skills/<name>/SKILL.md`. Read `write-code`, `write-d
 
 ## Repository overview
 
-Purpose: {AGENT must read from README.md and confirm with user}
+Purpose: TODO: read from README.md and confirm with the user
 
 Structure:
 
@@ -56,9 +36,9 @@ Structure:
 - `tests/` - test suite
 - `.github/workflows/` - CI/CD (test)
 - `{% if cookiecutter.coding_agent == "Claude" %}.claude{% else %}.agent{% endif %}/skills/` - coding conventions
-- {AGENT: list other important folders and confirm with user}
+- TODO: list other important folders
 
-Python Version: {AGENT: read from pyproject.toml}
+Python Version: >={{cookiecutter.python_version}}
 
 Key configuration files:
 
