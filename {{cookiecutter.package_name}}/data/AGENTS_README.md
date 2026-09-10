@@ -60,9 +60,4 @@ File edits trigger automatic formatting — no manual `pixi run fmt` needed. Pre
 
 Project defaults live in `.claude/settings.json` (tracked by git); machine-specific overrides
 belong in `.claude/settings.local.json` (gitignored).
-
-### Workflow impact
-
-1. File edits trigger automatic formatting - no manual `pixi run fmt` needed
-2. Pre-commit checks still run on commit - hooks are complementary, not redundant
 {%- endif %}
