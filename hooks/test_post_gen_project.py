@@ -1,12 +1,16 @@
 """Tests for post_gen_project hook behavior."""
 
+import ast
 import json
 import logging
 import subprocess
+import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from cookiecutter.environment import StrictEnvironment
+from pytest import mark
 
 from hooks import post_gen_project
 
@@ -262,3 +266,77 @@ def test_set_license_rejects_unknown(tmp_path: Path, monkeypatch: pytest.MonkeyP
 
     with pytest.raises(ValueError, match="not available"):
         post_gen_project.set_license("BSD-3-clause")
+
+
+TEMPLATE_ROOT = Path("{{cookiecutter.package_name}}")
+
+
+def render_template(context: dict[str, str]) -> dict[Path, str]:
+    """Render every template file cookiecutter would render for a context.
+
+    Args:
+        context: cookiecutter context to render with
+
+    Returns:
+        Mapping of path relative to the template root to rendered contents
+    """
+    environment = StrictEnvironment(context={"cookiecutter": context}, keep_trailing_newline=True)
+    copied_verbatim = json.loads(Path("cookiecutter.json").read_text(encoding="utf-8"))[
+        "_copy_without_render"
+    ]
+
+    rendered = {}
+    for path in sorted(TEMPLATE_ROOT.rglob("*")):
+        relative = path.relative_to(TEMPLATE_ROOT)
+        if path.is_dir() or any(relative.is_relative_to(glob) for glob in copied_verbatim):
+            continue
+
+        source = path.read_text(encoding="utf-8")
+        rendered[relative] = environment.from_string(source).render(cookiecutter=context)
+
+    return rendered
+
+
+@mark.parametrize("license_name", ["MIT", "Apache-2.0", "BSD-3-Clause", "None"])
+@mark.parametrize("coding_agent", ["Claude", "Codex", "None"])
+@mark.parametrize("author_name", ["Jane Doe", ""])
+def test_template_renders_to_well_formed_files(
+    license_name: str, coding_agent: str, author_name: str
+) -> None:
+    """Render every option combination, then parse the TOML, JSON, and Python it produces.
+
+    This is the only check that a comment or a conditional edit did not take a Jinja tag with
+    it, since the root `prek.toml` has to exclude the template's `pyproject.toml` from
+    `check-toml`.
+    """
+    context = {
+        "project_name": "Spam Deluxe",
+        "package_name": "spam_deluxe",
+        "author_name": author_name,
+        "github_username": "octocat",
+        "project_url": "https://github.com/octocat/spam_deluxe",
+        "python_version": "3.14",
+        "line_length": "100",
+        "license": license_name,
+        "coding_agent": coding_agent,
+    }
+
+    for relative, contents in render_template(context).items():
+        assert "{{" not in contents, f"unrendered Jinja left in {relative}"
+        assert "{%" not in contents, f"unrendered Jinja left in {relative}"
+
+        match relative.suffix:
+            case ".toml":
+                # The post-gen hook fills these in; until it does the file is not valid TOML
+                filled = (
+                    contents.replace("{python_version}", context["python_version"])
+                    .replace("{pixi_dependencies}\n", "")
+                    .replace("{pixi_test_dependencies}\n", "")
+                )
+                tomllib.loads(filled)
+            case ".json":
+                json.loads(contents)
+            case ".py":
+                ast.parse(contents)
+            case _:
+                pass

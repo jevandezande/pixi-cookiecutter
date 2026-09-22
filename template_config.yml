@@ -1,6 +1,3 @@
 default_context:
     author_name: "John Smith"
-    email: ""
-    github_username: ""
-abbreviations:
-    bb: https://bitbucket.org/{0}
+    github_username: "johnsmith"

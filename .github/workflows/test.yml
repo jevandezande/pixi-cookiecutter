@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test
+  hooks:
+    name: Hooks
     runs-on: ubuntu-latest
 
     steps:
@@ -27,13 +27,12 @@ jobs:
           environments: dev
           locked: true
 
-      - run: pixi global install direnv
-
       - name: Check TOML/YAML/whitespace
         run: |
           pixi run -e dev -- prek run --all-files --show-diff-on-failure --color=always \
             check-toml \
             check-yaml \
+            check-merge-conflict \
             trailing-whitespace \
             end-of-file-fixer
 
@@ -52,6 +51,44 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  generate:
+    name: Generate ${{ matrix.name }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # github_setup stays None everywhere: anything else creates a real repository
+        include:
+          - name: defaults
+            license: MIT
+            coding_agent: None
+          # The only leg with dependencies
+          - name: Claude, with dependencies
+            license: Apache-2.0
+            coding_agent: Claude
+            pixi_dependencies: numpy
+            pixi_test_dependencies: pytest-xdist@>=3.6
+          - name: BSD-3-Clause, Codex
+            license: BSD-3-Clause
+            coding_agent: Codex
+          # No LICENSE file, and no license in pyproject.toml
+          - name: unlicensed
+            license: None
+            coding_agent: None
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: v0.81.0
+          cache: true
+          environments: dev
+          locked: true
+
+      - run: pixi global install direnv
+
       - name: Configure git
         run: |
           git config --global user.email "default@example.com"
@@ -60,10 +97,35 @@ jobs:
 
       - name: Run cookiecutter
         run: |
-          pixi run cookiecutter . --no-input --config-file template_config.yml -o ..
+          pixi run cookiecutter . --no-input --config-file template_config.yml -o .. \
+            license="${{ matrix.license }}" \
+            coding_agent="${{ matrix.coding_agent }}" \
+            pixi_dependencies="${{ matrix.pixi_dependencies }}" \
+            pixi_test_dependencies="${{ matrix.pixi_test_dependencies }}"
 
-      - name: Run prek
+      - name: Check the generated project
+        working-directory: ../pixi_project
         run: |
-          cd ../pixi_project
           direnv allow .
           pixi run -e dev prek run -a --stage pre-push
+
+      - name: Check the files the options select
+        working-directory: ../pixi_project
+        run: |
+          test -f AGENTS.md
+          if [ "${{ matrix.license }}" = "None" ]; then
+            test ! -f LICENSE
+          else
+            test -f LICENSE
+          fi
+          if [ "${{ matrix.coding_agent }}" = "None" ]; then
+            test ! -d .claude
+          else
+            test -f .claude/skills/write-code/SKILL.md
+          fi
+          test ! -f CLAUDE.md
+          if [ "${{ matrix.coding_agent }}" = "Claude" ]; then
+            test -f .claude/settings.json
+          else
+            test ! -f .claude/settings.json
+          fi
