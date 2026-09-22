@@ -13,9 +13,9 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 
 ## AI Skills
 {% if cookiecutter.coding_agent == "Claude" %}
-This project uses Claude Skills. Use the `skill` tool to load `write-code`, `write-docstrings`, and `write-tests` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
+This project uses Claude Skills. Use the `skill` tool to load `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
 {% else %}
-Conventions live in `.agent/skills/<name>/SKILL.md`. Read `write-code`, `write-docstrings`, and `write-tests` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
+Conventions live in `.agent/skills/<name>/SKILL.md`. Read `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
 {% endif %}
 ## When in doubt
 {% if cookiecutter.coding_agent == "Claude" %}
