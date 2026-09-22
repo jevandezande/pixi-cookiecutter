@@ -8,7 +8,7 @@
     "pixi_test_dependencies": "",
     "python_version": "3.14",
     "line_length": "100",
-    "license": ["MIT", "Apache-2.0", "BSD-3-clause", "None"],
+    "license": ["MIT", "Apache-2.0", "BSD-3-Clause", "None"],
     "github_setup": ["None", "private", "internal", "public"],
     "coding_agent": ["None", "Claude", "Codex"],
     "_copy_without_render": [".github/workflows"],

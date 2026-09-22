@@ -85,36 +85,31 @@ def set_python_version(python_version: str) -> None:
     read_write("pyproject.toml", "{python_version}", python_version)
 
 
-def set_license(license: str | None = "MIT") -> None:
+def set_license(license_name: str) -> None:
     """Write the selected license to LICENSE (if any).
 
     Args:
-        license: name of the license (or None for no license)
+        license_name: SPDX identifier of the license (or "None" for no license)
 
     Raises:
         ValueError: if license is not available
     """
-    if not license or license == "None":
+    if license_name == "None":
         logger.debug("No license set")
         return
 
-    licenses = {lic.name for lic in Path("data/licenses").iterdir()}
-    if license not in licenses:
-        try:
-            # Check and correct cases
-            license = next(lic for lic in licenses if lic.lower() == license.lower())
-            logger.warning(f"Corrected license to {license=}")
-        except StopIteration as e:
-            raise ValueError(f"{license=} not available; select from:\n{licenses}") from e
+    licenses = {path.name for path in Path("data/licenses").iterdir()}
+    if license_name not in licenses:
+        raise ValueError(f"{license_name=} not available; select from:\n{licenses}")
 
-    contents = Path(f"data/licenses/{license}").read_text(encoding="utf-8")
+    contents = Path(f"data/licenses/{license_name}").read_text(encoding="utf-8")
     contents = contents.replace("{year}", f"{datetime.now().year}")
     contents = contents.replace("{author_name}", "{{cookiecutter.author_name}}")
 
     stripped = "\n".join(line.rstrip() for line in contents.split("\n"))
     Path("LICENSE").write_text(stripped, encoding="utf-8")
 
-    logger.debug(f"Set {license=}")
+    logger.debug(f"Set {license_name=}")
 
 
 def git_init(default_branch: str = DEFAULT_BRANCH) -> None:

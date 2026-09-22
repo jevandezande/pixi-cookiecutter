@@ -1,5 +1,6 @@
 """Tests for post_gen_project hook behavior."""
 
+import json
 import logging
 import subprocess
 from pathlib import Path
@@ -237,3 +238,26 @@ def test_git_initial_commit_skips_the_hooks(monkeypatch: pytest.MonkeyPatch) -> 
     post_gen_project.git_initial_commit()
 
     assert calls == ["git add .", "git commit --no-verify -m Setup"]
+
+
+def test_every_license_choice_ships_a_file_set_license_can_format() -> None:
+    """Match the license choices against the files `set_license` copies from."""
+    choices = json.loads(Path("cookiecutter.json").read_text(encoding="utf-8"))["license"]
+    licenses = Path("{{cookiecutter.package_name}}/data/licenses")
+
+    for choice in choices:
+        if choice == "None":
+            continue
+
+        path = licenses / choice
+        assert path.exists(), f"{choice} has no file in {licenses}"
+        assert "{author_name}" in path.read_text(encoding="utf-8")
+
+
+def test_set_license_rejects_unknown(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Reject a license with no file, rather than guessing at the case."""
+    (tmp_path / "data" / "licenses").mkdir(parents=True)
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="not available"):
+        post_gen_project.set_license("BSD-3-clause")
