@@ -11,10 +11,9 @@ algorithms, and techniques in this repo.
 
 ## Purpose
 
-The goal of these documents is to explain how a method works, why it is used,
-what equations govern it, how the algorithm proceeds, and how it relates to the
-current package implementation. The main body should teach the method itself,
-not just describe code structure.
+These documents explain how a method works, why it is used, what equations govern it, how the
+algorithm proceeds, and how the package implements it. The main body teaches the method rather
+than describing the code.
 
 ## When to Use This Skill
 
@@ -34,19 +33,21 @@ Do not use this skill for:
 
 ## Core Principles
 
-- **Start with a quick overview of the method and its relevance**. Ideally 3–4 sentences.
-- **Write the main body as theory-first.** Explain the scientific method before discussing package-specific implementation.
-- **Include all relevant equations.** If a method is defined by an objective, transform, update equation, eigenvalue problem, projector, or recurrence, include it.
-- **Include an algorithm sketch when relevant.** A reader should be able to understand how to carry out the method, not just what it is called.
-- **Separate implementation status from theory.** Put current-package behavior in a dedicated late section.
-- **Use linked references.** Every reference in the final section must be a markdown hyperlink. Prefer DOI links.
-- **Prefer markdown links throughout.** Avoid raw path literals when a link is intended.
-- **Use Unicode when it improves clarity.** Greek letters and mathematical symbols are acceptable.
+- Open with a three- or four-sentence overview of the method and why it matters.
+- Put theory first. Explain the method before the package's implementation.
+- Include every defining equation: objective, transform, update, eigenvalue problem, projector,
+  or recurrence.
+- Include an algorithm sketch where it helps. A reader should learn how to carry out the method,
+  not only its name.
+- Keep implementation status out of the theory. Describe the package's behavior in its own
+  section near the end.
+- Make every reference in the final section a markdown hyperlink, preferring DOI links.
+- Use markdown links rather than raw paths.
+- Use Unicode Greek letters and mathematical symbols where they read more clearly.
 
 ## Required Structure
 
-Most method documents should follow this structure, adapted as needed to the
-topic:
+Most method documents follow this structure, adapted to the topic:
 
 ```md
 # <Title>
@@ -70,8 +71,7 @@ Introductory paragraph.
 ## References
 ```
 
-Not every document needs every heading literally, but each document should
-contain the following components:
+Not every document needs every heading, but each needs these components:
 
 - A clear introduction.
 - A theory-focused explanation.
@@ -85,7 +85,7 @@ contain the following components:
 
 - H1 and H2 headers use Title Case.
 - H3 and deeper headers use sentence case.
-- List items should generally start with a Capital letter.
+- List items generally start with a capital letter.
 - Prefer markdown links over inline-code paths.
 - Prefer concise, formal scientific prose.
 - Keep terminology consistent within a document.
@@ -103,8 +103,8 @@ Examples:
 ## Equations And Algorithms
 
 - Include displayed equations for the core mathematical content.
-- Define symbols in nearby prose unless they are entirely standard in context.
-- Do not add decorative equations that do not help explain the method.
+- Define symbols in nearby prose unless they are standard in context.
+- Omit equations that do not help explain the method.
 - Include pseudocode or a numbered algorithm sketch when the method involves
   iterative or branching logic.
 
@@ -145,9 +145,8 @@ This section should answer:
 - How does the implementation differ from the canonical literature formulation?
 - What is missing, simplified, or future work?
 
-Keep this section distinct from the theory narrative. Do not let the main body
-collapse into a code tour unless the user explicitly asked for an
-implementation-focused document.
+Keep it distinct from the theory. The main body should not become a code tour unless the user
+asked for an implementation-focused document.
 
 ## References
 
@@ -156,9 +155,9 @@ Every document must end with a `## References` section.
 Reference rules:
 
 - Every entry must be a markdown hyperlink.
-- DOI links are preferred.
+- Prefer DOI links.
 - If a DOI is unavailable, use a stable publisher, manual, or project page.
-- Prefer primary literature first, then modern software or manual references.
+- List primary literature first, then software or manual references.
 
 Example style:
 
@@ -174,7 +173,7 @@ Example style:
 - Use descriptive markdown link text.
 - Prefer relative links appropriate to the target file location.
 - Link related method, usage, or theory pages when they help orient the reader.
-- Avoid dumping raw filenames without link text.
+- Do not paste raw filenames without link text.
 
 Good:
 
@@ -193,11 +192,9 @@ See `docs/step-trust-region-newton.md`.
 
 When writing a new scientific method page:
 
-1. Read neighboring documentation pages to infer local structure, terminology,
-   and cross-link conventions.
-2. Read relevant source files only as needed to determine implementation status.
-3. Gather canonical literature references and at least one modern supporting
-   reference when useful.
+1. Read neighboring pages for structure, terminology, and cross-link conventions.
+2. Read source files only as far as needed to establish implementation status.
+3. Gather the canonical references and, where useful, a modern supporting one.
 4. Draft the theory-first explanation.
 5. Add the governing equations.
 6. Add an algorithm sketch or pseudocode when relevant.
