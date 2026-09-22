@@ -6,7 +6,7 @@
 [![Markdown style: rumdl](https://img.shields.io/badge/md%20style-rumdl-000000.svg)](https://rumdl.dev)
 [![Typing: ty](https://img.shields.io/badge/typing-ty-EFC621.svg)](https://github.com/astral-sh/ty)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}/test.yml?branch=master&logo=github-actions)]({{cookiecutter.project_url}}/actions/)
-[![Codecov](https://img.shields.io/codecov/c/github/{{cookiecutter.github_username}}/{{cookiecutter.package_name}})](https://codecov.io/gh/{{cookiecutter.github_username}}/{{cookiecutter.package_name}})
+[![Codecov](https://img.shields.io/codecov/c/github/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}/master)](https://codecov.io/gh/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}/branch/master)
 
 ## Credits
 
