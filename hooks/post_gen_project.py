@@ -365,7 +365,8 @@ def notes() -> None:
         """
 If using GitHub, generate a CODECOV_TOKEN at:
 https://app.codecov.io/gh/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}/settings
-and add it to the GitHub repository secrets as CODECOV_TOKEN at:
+
+and add it to the GitHub repository secrets at:
 https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}/settings/secrets/actions
 """
     )
