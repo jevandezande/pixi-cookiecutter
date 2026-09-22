@@ -1,23 +1,23 @@
 # Pixi Cookiecutter
 
 [![License](https://img.shields.io/github/license/jevandezande/pixi-cookiecutter)](https://github.com/jevandezande/pixi-cookiecutter/blob/master/LICENSE)
-[![Powered by: Pixi](https://img.shields.io/badge/powered_by-pixi-facc15)](https://pixi.sh)
-[![Code style: ruff](https://img.shields.io/badge/code_style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Powered by: Pixi](https://img.shields.io/badge/Powered_by-Pixi-facc15)](https://pixi.sh)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Markdown style: rumdl](https://img.shields.io/badge/md%20style-rumdl-000000.svg)](https://rumdl.dev)
 [![Typing: ty](https://img.shields.io/badge/typing-ty-EFC621.svg)](https://github.com/astral-sh/ty)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jevandezande/pixi-cookiecutter/test.yml?branch=master&logo=github-actions)](https://github.com/jevandezande/pixi-cookiecutter/actions/)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jevandezande/pixi-cookiecutter/test.yml?branch=master&logo=github-actions)](https://github.com/jevandezande/pixi-cookiecutter/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/jevandezande/pixi-cookiecutter/master)](https://app.codecov.io/github/jevandezande/pixi-cookiecutter/branch/master)
 
-[Cookiecutter](https://github.com/cookiecutter/cookiecutter) for setting up [pixi](https://pixi.sh/) projects with all the necessary features for modern python development.
+[Cookiecutter](https://github.com/cookiecutter/cookiecutter) for setting up [pixi](https://pixi.sh) projects with all the necessary features for modern python development.
 
 ## Features
 
-- Packaging with [pixi](https://prefix.dev/)
-- Environment loading with [direnv](https://direnv.net/)
+- Packaging with [pixi](https://pixi.sh)
+- Environment loading with [direnv](https://direnv.net)
 - Formatting and linting of Python with [ruff](https://github.com/astral-sh/ruff)
-- Formatting and linting of Markdown with [rumdl](http://rumdl.dev)
+- Formatting and linting of Markdown with [rumdl](https://rumdl.dev)
 - Static typing with [ty](https://github.com/astral-sh/ty)
-- Testing with [pytest](https://docs.pytest.org/en/latest/)
+- Testing with [pytest](https://docs.pytest.org/en/latest)
 - Git hooks that run all the above with [prek](https://prek.j178.dev)
 - Continuous integration with [GitHub Actions](https://github.com/features/actions)
 - Code coverage with [Codecov](https://docs.codecov.com/docs)
