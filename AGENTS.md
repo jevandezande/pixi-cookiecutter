@@ -21,6 +21,11 @@ This project uses Claude Skills. You must use the `skill` tool to load `write-co
 - Run individual tools to identify issues
 - Ask user for clarification on ambiguous requirements
 
+## Template testing notes
+
+Full generation is not side-effect free; When `github_setup` is not `"None"`,
+`gh repo create` is run, which creates a repository on GitHub.
+
 ## Repository overview
 
 Purpose: Cookiecutter template for pixi-based Python projects.
