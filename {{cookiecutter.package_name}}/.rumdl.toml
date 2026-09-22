@@ -8,6 +8,7 @@ disable = [
 exclude = [
     ".git",
     ".pixi",
+    ".venv",
     "node_modules",
     "vendor",
     "dist",
@@ -17,6 +18,7 @@ exclude = [
 respect-gitignore = true
 
 [per-file-ignores]
-# Skill files start with instructions, not headings
-".claude/**/*.md" = ["MD041"]
-".agent/**/*.md" = ["MD041"]
+# Skill files start with frontmatter, not headings
+"**/skills/**/*.md" = ["MD041"]
+# CLAUDE.md only imports AGENTS.md
+"CLAUDE.md" = ["MD041"]
