@@ -18,4 +18,6 @@ exclude = [
 respect-gitignore = true
 
 [per-file-ignores]
-".claude/**/*.md" = ["MD041"]  # skill files start with instructions, not headings
+# Skill files start with frontmatter, not headings
+".claude/**/*.md" = ["MD041"]
+"**/data/skills/**/*.md" = ["MD041"]
