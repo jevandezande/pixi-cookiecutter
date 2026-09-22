@@ -1,5 +1,7 @@
 """Tests for post_gen_project hook behavior."""
 
+import logging
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -114,3 +116,55 @@ def test_git_add_remote_formats_url(
     monkeypatch.setattr(post_gen_project, "call", fake_call)
     post_gen_project.git_add_remote("origin", "https://github.com/user/repo.git", protocol=protocol)
     assert calls == [f"git remote add origin {expected}"]
+
+
+def test_check_prerequisites_requires_gh_only_for_github_setup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Probe the GitHub CLI only when a repository will be created."""
+    checked: list[str] = []
+    monkeypatch.setattr(
+        post_gen_project, "check_program", lambda program, _: checked.append(program)
+    )
+
+    post_gen_project.check_prerequisites("None")
+    assert not any("gh" in program for program in checked)
+
+    checked.clear()
+    post_gen_project.check_prerequisites("private")
+    assert "gh --version" in checked
+
+
+def test_github_setup_qualifies_the_repo_with_the_owner(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Create the repository under the given owner rather than the authenticated user."""
+    calls: list[str] = []
+    monkeypatch.setattr(post_gen_project, "call", lambda cmd, **_: calls.append(cmd))
+
+    post_gen_project.github_setup("private", owner="octocat", name="spam")
+
+    assert calls[0] == "gh repo create octocat/spam --private --remote origin --source . --push"
+
+
+def test_github_setup_stops_after_a_failing_gh(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Skip the upstream configuration when the repository was never created."""
+    calls: list[str] = []
+
+    def fake_call(cmd: str, **_: object) -> None:
+        calls.append(cmd)
+        raise subprocess.CalledProcessError(1, cmd)
+
+    monkeypatch.setattr(post_gen_project, "call", fake_call)
+
+    with caplog.at_level(logging.ERROR):
+        post_gen_project.github_setup("public", owner="octocat", name="spam")
+
+    assert len(calls) == 1
+    assert "Retry with" in caplog.text
+
+
+def test_github_setup_rejects_unknown_privacy() -> None:
+    """Reject a privacy level the GitHub CLI has no flag for."""
+    with pytest.raises(ValueError, match="secret"):
+        post_gen_project.github_setup("secret")

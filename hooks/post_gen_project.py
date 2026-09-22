@@ -207,9 +207,21 @@ def check_program(program: str, install_str: str, **run_kwargs: Any) -> None:
         raise OSError(f"Issue with {program} encountered") from e
 
 
+def check_prerequisites(github_setup: str = "{{cookiecutter.github_setup}}") -> None:
+    """Check that the tools generation needs are installed, before anything is built.
+
+    Args:
+        github_setup: privacy of the GitHub repository to create, or "None" to skip the CLI check
+    """
+    check_program("pixi --version", "https://pixi.sh/latest/#installation")
+    check_program("direnv --version", "pixi global install direnv")
+
+    if github_setup != "None":
+        check_program("gh --version", "https://cli.github.com/")
+
+
 def allow_direnv() -> None:
     """Allow direnv."""
-    check_program("direnv", "pixi global install direnv")
     call("direnv allow .")
 
 
@@ -326,28 +338,37 @@ def git_add_remote(remote: str, url: str, protocol: PROTOCOL = "git") -> None:
 
 
 def github_setup(
-    privacy: str, remote: str = "origin", default_branch: str = DEFAULT_BRANCH
+    privacy: str,
+    remote: str = "origin",
+    default_branch: str = DEFAULT_BRANCH,
+    owner: str = "{{cookiecutter.github_username}}",
+    name: str = "{{cookiecutter.package_name}}",
 ) -> None:
     """Make a repository on GitHub (requires GitHub CLI).
+
+    The repository is qualified with its owner, so it lands under `github_username` rather than
+    whoever the GitHub CLI happens to be authenticated as.
 
     Args:
         privacy: privacy of the repository ("private", "internal", "public")
         remote: name of the remote to add
         default_branch: name of the default branch for upstream
+        owner: user or organization to create the repository under
+        name: name of the repository
+
     Raises:
         ValueError: if privacy option is not valid
     """
     if privacy not in GITHUB_PRIVACY_OPTIONS:
         raise ValueError(f"{privacy=} not in {GITHUB_PRIVACY_OPTIONS}")
 
-    check_program("gh", "https://cli.github.com/")
+    create = f"gh repo create {owner}/{name} --{privacy} --remote {remote} --source . --push"
 
     try:
-        call(
-            f"gh repo create {{cookiecutter.package_name}} --{privacy} --remote {remote} --source ."
-        )
+        call(create)
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error creating GitHub repository, likely already exists: {e}")
+        logger.error(f"Error creating GitHub repository: {e}\nRetry with: {create}")
+        return
 
     try:
         call(f"git config branch.{default_branch}.remote {remote}")
@@ -378,6 +399,7 @@ TERMINATOR = "\x1b[0m"
 
 def main() -> None:
     """Run the post generation hooks."""
+    check_prerequisites()
     set_python_version("{{cookiecutter.python_version}}")
     set_license("{{cookiecutter.license}}")
     git_init()
