@@ -4,39 +4,27 @@ import logging
 import shutil
 import subprocess
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, assert_never
 from urllib.parse import urlparse
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger("post_gen_project")
 
 
-PROTOCOL = Literal["git", "https"]
-GITHUB_PRIVACY_OPTIONS = ["private", "internal", "public"]
+type GitProtocol = Literal["git", "https"]
+GITHUB_PRIVACY_OPTIONS = ("private", "internal", "public")
 DEFAULT_BRANCH = "master"
-DEFAULT_AGENT_DIR = ".agent"
-CLAUDE_AGENT_DIR = ".claude"
+AGENT_DIR = Path(".claude")
 
 
-class CodingAgent(str, Enum):
-    """Coding agents supported."""
+class CodingAgent(StrEnum):
+    """Coding agents supported, as lowercased `cookiecutter.json` choices."""
 
+    NONE = "none"
     CLAUDE = "claude"
     CODEX = "codex"
-
-    @property
-    def directory(self) -> Path:
-        """Directory the agent reads its skills (and settings) from.
-
-        Examples:
-            >>> str(CodingAgent.CLAUDE.directory)
-            '.claude'
-            >>> str(CodingAgent.CODEX.directory)
-            '.agent'
-        """
-        return Path(CLAUDE_AGENT_DIR if self is CodingAgent.CLAUDE else DEFAULT_AGENT_DIR)
 
 
 def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
@@ -243,7 +231,10 @@ def git_hooks() -> None:
 
 
 def setup_coding_agent_files(agent: str) -> None:
-    """Set up coding agent files.
+    """Set up the selected agent's files; AGENTS.md ships even when none was chosen.
+
+    Every agent reads the conventions from the same `AGENTS.md`, so none of them get a second
+    copy to keep in step.
 
     Args:
         agent: coding agent name ("claude", "codex", or "none")
@@ -251,35 +242,25 @@ def setup_coding_agent_files(agent: str) -> None:
     Raises:
         ValueError: if coding agent is not supported
     """
-    if agent.lower() == "none":
+    coding_agent = CodingAgent(agent.lower())
+    shutil.copy(Path("data/AGENTS_README.md"), Path("AGENTS.md"))
+
+    if coding_agent is CodingAgent.NONE:
         return
 
-    coding_agent = CodingAgent(agent.lower())
-    logger.info(f"Setting up files for {coding_agent}.")
-
-    source = Path("data/AGENTS_README.md")
-
-    # Created up front so agent-specific files have somewhere to land
-    agent_dir = coding_agent.directory
-    agent_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Setting up files for {coding_agent.value}")
+    shutil.copytree("data/skills", AGENT_DIR / "skills")
 
     match coding_agent:
         case CodingAgent.CLAUDE:
-            destination = Path("CLAUDE.md")
-            cmd = "claude /init"
             # Settings are only understood by Claude Code
-            shutil.copy("data/claude/settings.json", agent_dir / "settings.json")
+            shutil.copy(Path("data/claude/settings.json"), AGENT_DIR / "settings.json")
+            cmd = "claude -p 'Read AGENTS.md and update it'"
         case CodingAgent.CODEX:
-            destination = Path("AGENTS.md")
             cmd = "codex exec 'Read AGENTS.md and update it'"
         case _:
-            raise ValueError(f"Unsupported coding agent: {coding_agent}")
+            assert_never(coding_agent)
 
-    shutil.copytree("data/skills", agent_dir / "skills")
-    logger.info(f"Copied skills to {agent_dir / 'skills'}")
-
-    shutil.copy(source, destination)
-    logger.info(f"Copied {source} to {destination}")
     logger.info(f"Run `{cmd}` to finish agent setup.")
 
 
@@ -346,7 +327,7 @@ def valid_remote_url(url: str) -> bool:
     return bool(parsed.hostname and segments and all(segments))
 
 
-def git_add_remote(remote: str, url: str, protocol: PROTOCOL = "git") -> None:
+def git_add_remote(remote: str, url: str, protocol: GitProtocol = "git") -> None:
     """Add a remote to the git repository.
 
     Args:

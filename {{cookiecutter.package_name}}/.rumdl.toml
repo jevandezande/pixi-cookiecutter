@@ -20,5 +20,3 @@ respect-gitignore = true
 [per-file-ignores]
 # Skill files start with frontmatter, not headings
 "**/skills/**/*.md" = ["MD041"]
-# CLAUDE.md only imports AGENTS.md
-"CLAUDE.md" = ["MD041"]

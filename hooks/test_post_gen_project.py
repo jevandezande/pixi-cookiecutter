@@ -66,34 +66,35 @@ def test_set_license_copies_and_formats(tmp_path: Path, monkeypatch: pytest.Monk
 
 
 def test_setup_coding_agent_files_claude(agent_data: Path) -> None:
-    """Claude gets CLAUDE.md, skills in `.claude/`, and the settings it understands."""
+    """Claude gets AGENTS.md, the skills, and the settings only it understands."""
     post_gen_project.setup_coding_agent_files("Claude")
 
-    assert (agent_data / "CLAUDE.md").exists()
+    assert (agent_data / "AGENTS.md").exists()
     assert (agent_data / ".claude" / "skills" / "write-code" / "SKILL.md").exists()
     assert (agent_data / ".claude" / "settings.json").exists()
-    assert not (agent_data / ".agent").exists()
 
 
 def test_setup_coding_agent_files_codex(agent_data: Path) -> None:
-    """Codex gets AGENTS.md and skills in `.agent/`, but no Claude-only files."""
+    """Codex gets the same skills, but none of the Claude-only files."""
     post_gen_project.setup_coding_agent_files("Codex")
 
     assert (agent_data / "AGENTS.md").exists()
-    assert (agent_data / ".agent" / "skills" / "write-code" / "SKILL.md").exists()
-    assert not (agent_data / ".agent" / "settings.json").exists()
-    assert not (agent_data / ".claude").exists()
-    assert not (agent_data / "CLAUDE.md").exists()
+    assert (agent_data / ".claude" / "skills" / "write-code" / "SKILL.md").exists()
+    assert not (agent_data / ".claude" / "settings.json").exists()
 
 
-def test_setup_coding_agent_files_none(agent_data: Path) -> None:
-    """No agent files are created when no agent is selected."""
+def test_setup_coding_agent_files_none_still_writes_agents_md(agent_data: Path) -> None:
+    """AGENTS.md ships without an agent, since any agent may later read it."""
     post_gen_project.setup_coding_agent_files("None")
 
+    assert (agent_data / "AGENTS.md").exists()
     assert not (agent_data / ".claude").exists()
-    assert not (agent_data / ".agent").exists()
-    assert not (agent_data / "CLAUDE.md").exists()
-    assert not (agent_data / "AGENTS.md").exists()
+
+
+def test_setup_coding_agent_files_rejects_unknown(agent_data: Path) -> None:
+    """Reject an agent with no files to copy."""
+    with pytest.raises(ValueError, match="clippy"):
+        post_gen_project.setup_coding_agent_files("Clippy")
 
 
 @pytest.mark.parametrize(
@@ -104,7 +105,7 @@ def test_setup_coding_agent_files_none(agent_data: Path) -> None:
     ],
 )
 def test_git_add_remote_formats_url(
-    protocol: post_gen_project.PROTOCOL,
+    protocol: post_gen_project.GitProtocol,
     expected: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
