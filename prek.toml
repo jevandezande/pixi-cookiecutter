@@ -1,17 +1,28 @@
-exclude = '.pixi/'
+#:schema https://www.schemastore.org/prek.json
+exclude = '\.pixi/'
+default_install_hook_types = ["pre-commit", "pre-push"]
 default_stages = ["pre-commit", "pre-push"]
 
 [[repos]]
 repo = "builtin"
 hooks = [
-  { id = "check-toml", exclude = "{{cookiecutter.package_name}}/pyproject.toml" },
+  { id = "check-toml", exclude = '\{\{cookiecutter\.package_name\}\}/pyproject\.toml' },
   { id = "check-yaml" },
+  { id = "check-merge-conflict" },
   { id = "end-of-file-fixer" },
   { id = "trailing-whitespace" },
 ]
 
 [[repos]]
 repo = "local"
+
+[[repos.hooks]]
+id = "pixi-lock-check"
+name = "pixi lock --check"
+language = "system"
+entry = "pixi lock --check"
+files = '^(pyproject\.toml|pixi\.lock)$'
+pass_filenames = false
 
 [[repos.hooks]]
 id = "rumdl-fmt"
@@ -34,7 +45,7 @@ id = "ruff-format"
 name = "ruff-format"
 language = "system"
 entry = "pixi run fmt"
-types = ["python"]
+types_or = ["python", "pyi"]
 pass_filenames = false
 
 [[repos.hooks]]
@@ -42,7 +53,7 @@ id = "ruff-check"
 name = "ruff-check"
 language = "system"
 entry = "pixi run lint"
-types = ["python"]
+types_or = ["python", "pyi"]
 pass_filenames = false
 
 [[repos.hooks]]
@@ -50,7 +61,7 @@ id = "ty"
 name = "ty"
 language = "system"
 entry = "pixi run types"
-types = ["python"]
+types_or = ["python", "pyi"]
 pass_filenames = false
 
 [[repos.hooks]]
@@ -58,5 +69,6 @@ id = "pytest"
 name = "pytest"
 language = "system"
 entry = "pixi run test"
-types = ["python"]
+always_run = true
 pass_filenames = false
+stages = ["pre-push"]
