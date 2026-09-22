@@ -168,3 +168,50 @@ def test_github_setup_rejects_unknown_privacy() -> None:
     """Reject a privacy level the GitHub CLI has no flag for."""
     with pytest.raises(ValueError, match="secret"):
         post_gen_project.github_setup("secret")
+
+
+def test_read_write_rejects_a_missing_placeholder(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Raise when the placeholder is absent, rather than leaving the file untouched."""
+    (tmp_path / "pyproject.toml").write_text("version = '0.0.1'\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="renamed"):
+        post_gen_project.read_write("pyproject.toml", "{renamed}", "1")
+
+
+def test_update_dependencies_fills_both_placeholders(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Write both the runtime and the test dependencies into pyproject.toml."""
+    (tmp_path / "pyproject.toml").write_text(
+        "[tool.pixi.dependencies]\n{pixi_dependencies}\n[dev]\n{pixi_test_dependencies}\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(post_gen_project, "call", lambda *_, **__: None)
+
+    post_gen_project.update_dependencies("numpy", "pytest-xdist@>=3.6")
+
+    contents = (tmp_path / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'numpy = "*"\n' in contents
+    assert 'pytest-xdist = ">=3.6"\n' in contents
+
+
+def test_update_dependencies_collapses_empty_specs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Drop the placeholder line entirely when no dependencies were requested."""
+    (tmp_path / "pyproject.toml").write_text(
+        "[tool.pixi.dependencies]\n{pixi_dependencies}\n[dev]\n{pixi_test_dependencies}\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(post_gen_project, "call", lambda *_, **__: None)
+
+    post_gen_project.update_dependencies("", " ")
+
+    assert (tmp_path / "pyproject.toml").read_text(encoding="utf-8") == (
+        "[tool.pixi.dependencies]\n[dev]\n"
+    )

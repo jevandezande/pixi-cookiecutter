@@ -53,6 +53,25 @@ def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedPro
     return subprocess.run(cmd.split(), check=check, **kwargs)
 
 
+def read_write(file_name: str, old: str, new: str) -> None:
+    """Replace all occurrences of a substring in a file.
+
+    Args:
+        file_name: file to modify
+        old: substring to replace
+        new: replacement substring
+
+    Raises:
+        ValueError: `old` is not in the file, so a renamed placeholder cannot pass silently
+    """
+    path = Path(file_name)
+    contents = path.read_text(encoding="utf-8")
+    if old not in contents:
+        raise ValueError(f"{old!r} not found in {file_name}")
+
+    path.write_text(contents.replace(old, new), encoding="utf-8")
+
+
 def set_python_version(python_version: str) -> None:
     """Set the python version in pyproject.toml.
 
@@ -63,9 +82,7 @@ def set_python_version(python_version: str) -> None:
     """
     logger.info(f"Setting {python_version=}")
 
-    pyproject = Path("pyproject.toml")
-    contents = pyproject.read_text(encoding="utf-8")
-    pyproject.write_text(contents.replace("{python_version}", python_version), encoding="utf-8")
+    read_write("pyproject.toml", "{python_version}", python_version)
 
 
 def set_license(license: str | None = "MIT") -> None:
@@ -168,19 +185,19 @@ def process_dependencies(deps: str) -> str:
     return "\n".join(map(process_dependency, deps.split())) + "\n"
 
 
-def update_dependencies() -> None:
-    """Add and update the dependencies in pyproject.toml and pixi.lock."""
+def update_dependencies(
     # Extra space and .strip() avoids accidentally creating '""""'
-    dependencies = process_dependencies("""{{cookiecutter.pixi_dependencies}} """.strip())
-    dev_dependencies = process_dependencies("""{{cookiecutter.pixi_test_dependencies}} """.strip())
+    deps: str = """{{cookiecutter.pixi_dependencies}} """.strip(),
+    test_deps: str = """{{cookiecutter.pixi_test_dependencies}} """.strip(),
+) -> None:
+    """Add and update the dependencies in pyproject.toml and pixi.lock.
 
-    pyproject = Path("pyproject.toml")
-    contents = (
-        pyproject.read_text(encoding="utf-8")
-        .replace("{pixi_dependencies}\n", dependencies)
-        .replace("{pixi_test_dependencies}\n", dev_dependencies)
-    )
-    pyproject.write_text(contents, encoding="utf-8")
+    Args:
+        deps: space separated runtime dependencies
+        test_deps: space separated test dependencies
+    """
+    read_write("pyproject.toml", "{pixi_dependencies}\n", process_dependencies(deps))
+    read_write("pyproject.toml", "{pixi_test_dependencies}\n", process_dependencies(test_deps))
 
     call("pixi update")
 
