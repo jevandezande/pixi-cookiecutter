@@ -293,10 +293,22 @@ def remove_data_dir() -> None:
     shutil.rmtree("data")
 
 
-def git_initial_commit() -> None:
-    """Make the initial commit."""
+def verify_generated_project() -> None:
+    """Run the generated project's own hooks over the tree, warning on failure.
+
+    A raise would have cookiecutter delete an otherwise finished project, so failures are
+    reported instead. The hooks are mutating, so any formatting they fix lands in the initial
+    commit.
+    """
     call("git add .")
-    call("git commit -m Setup")
+    if call("pixi run -e dev prek run -a --stage pre-push", check=False).returncode:
+        logger.warning("Generated project fails its own hooks; see above")
+
+
+def git_initial_commit() -> None:
+    """Make the initial commit, skipping the hooks `verify_generated_project` just ran."""
+    call("git add .")
+    call("git commit --no-verify -m Setup")
 
 
 def setup_remote(remote: str = "origin") -> None:
@@ -425,6 +437,7 @@ def main() -> None:
     git_hooks()
     setup_coding_agent_files("{{cookiecutter.coding_agent}}")
     remove_data_dir()
+    verify_generated_project()
     git_initial_commit()
     setup_remote("origin")
 

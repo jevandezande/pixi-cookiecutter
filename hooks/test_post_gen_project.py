@@ -215,3 +215,25 @@ def test_update_dependencies_collapses_empty_specs(
     assert (tmp_path / "pyproject.toml").read_text(encoding="utf-8") == (
         "[tool.pixi.dependencies]\n[dev]\n"
     )
+
+
+def test_verify_generated_project_warns_rather_than_raising(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Report failing hooks without raising, which would delete the generated project."""
+    monkeypatch.setattr(post_gen_project, "call", lambda *_, **__: SimpleNamespace(returncode=1))
+
+    with caplog.at_level(logging.WARNING):
+        post_gen_project.verify_generated_project()
+
+    assert "fails its own hooks" in caplog.text
+
+
+def test_git_initial_commit_skips_the_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Commit with --no-verify, since the hooks already ran over the whole tree."""
+    calls: list[str] = []
+    monkeypatch.setattr(post_gen_project, "call", lambda cmd, **_: calls.append(cmd))
+
+    post_gen_project.git_initial_commit()
+
+    assert calls == ["git add .", "git commit --no-verify -m Setup"]
