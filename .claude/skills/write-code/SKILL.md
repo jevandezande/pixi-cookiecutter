@@ -103,7 +103,7 @@ pixi run test --cov             # Run tests with coverage
 
 # Package management
 pixi add <package>              # Add dependency
-pixi add --dev <package>        # Add dev dependency
+pixi add -f dev <package>       # Add dev dependency
 pixi install                    # Install/sync dependencies
 ```
 

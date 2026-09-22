@@ -29,7 +29,7 @@ required when `github_setup` is used.
 
 ```sh
 curl -fsSL https://pixi.sh/install.sh | sh
-curl -sfL https://direnv.net/install.sh | bash
+pixi global install direnv
 
 # Optional
 curl -sS https://webi.sh/gh | sh
