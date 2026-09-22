@@ -18,7 +18,7 @@ Python version: >=3.13
 
 - Ensure all code has type annotations
 - Add Google-style docstrings (NO types, NO leading articles)
-- Run checks: `prek -a`
+- Run checks: `prek run -a --stage pre-push` (tests run at pre-push, not pre-commit)
 - Prek hooks will run automatically and must pass
 
 ## Code conventions
@@ -94,7 +94,7 @@ prek install                    # Install git hooks
 pixi run fmt                    # Format code
 pixi run lint                   # Lint code
 pixi run types                  # Type check
-prek -a                         # Run all prek hooks
+prek run -a --stage pre-push    # Run all prek hooks, tests included
 prek run <hook-id>              # Run specific hook
 
 # Testing
