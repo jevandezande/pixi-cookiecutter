@@ -1,1 +1,1 @@
-"""Hooks for building package."""
+"""Cookiecutter hooks for generating a project."""

@@ -30,13 +30,15 @@ class CodingAgent(StrEnum):
 def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
     """Call shell commands.
 
+    Arguments split on whitespace, so command strings with spaces are not yet supported.
+
     Args:
         cmd: command to call
         check: whether to raise an exception if the command fails
-        kwargs: keyword arguments to pass to subprocess.call
+        kwargs: keyword arguments to pass to subprocess.run
 
-    Warning:
-        strings with spaces are not yet supported
+    Returns:
+        Completed process
     """
     logger.debug(f"Calling: {cmd}")
     return subprocess.run(cmd.split(), check=check, **kwargs)
@@ -81,7 +83,7 @@ def set_license(license_name: str) -> None:
         license_name: SPDX identifier of the license (or "None" for no license)
 
     Raises:
-        ValueError: if license is not available
+        ValueError: license is not available
     """
     if license_name == "None":
         logger.debug("No license set")
@@ -120,7 +122,7 @@ def process_dependency(dependency: str) -> str:
         dependency: dependency to process
 
     Returns:
-        processed dependency in the format 'package = "version"'
+        Processed dependency in the format 'package = "version"'
 
     Examples:
         >>> process_dependency("pytest")
@@ -157,7 +159,7 @@ def process_dependencies(deps: str) -> str:
         deps: dependencies to process
 
     Returns:
-        processed dependencies in the format 'package = "version"'
+        Processed dependencies in the format 'package = "version"'
 
     Examples:
         >>> process_dependencies(' ')
@@ -172,7 +174,7 @@ def process_dependencies(deps: str) -> str:
 
 
 def update_dependencies(
-    # Extra space and .strip() avoids accidentally creating '""""'
+    # Extra space and .strip() avoid accidentally creating '""""'
     deps: str = """{{cookiecutter.pixi_dependencies}} """.strip(),
     test_deps: str = """{{cookiecutter.pixi_test_dependencies}} """.strip(),
 ) -> None:
@@ -193,8 +195,11 @@ def check_program(program: str, install_str: str, **run_kwargs: Any) -> None:
 
     Args:
         program: name of the program to check
-        install_str: string to print if the program is not installed
-        run_kwargs: keyword arguments to pass to subprocess.call
+        install_str: install instructions included when the program is missing
+        run_kwargs: keyword arguments to pass to subprocess.run
+
+    Raises:
+        OSError: program is missing, or command fails
 
     Examples:
         >>> check_program("python", "https://www.python.org")  # doctest: +SKIP
@@ -212,7 +217,7 @@ def check_program(program: str, install_str: str, **run_kwargs: Any) -> None:
 
 
 def check_prerequisites(github_setup: str = "{{cookiecutter.github_setup}}") -> None:
-    """Check that the tools generation needs are installed, before anything is built.
+    """Check that the tools that generation needs are installed, before anything is built.
 
     Args:
         github_setup: privacy of the GitHub repository to create, or "None" to skip the CLI check
@@ -244,7 +249,7 @@ def setup_coding_agent_files(agent: str) -> None:
         agent: coding agent name ("claude", "codex", or "none")
 
     Raises:
-        ValueError: if coding agent is not supported
+        ValueError: coding agent is not supported
     """
     coding_agent = CodingAgent(agent.lower())
     shutil.copy(Path("data/AGENTS_README.md"), Path("AGENTS.md"))
@@ -316,7 +321,7 @@ def valid_remote_url(url: str) -> bool:
         url: url of the remote
 
     Returns:
-        whether the url is complete enough to use as a remote
+        Whether url is complete enough to use as a remote
 
     Examples:
         >>> valid_remote_url("https://github.com/octocat/repo")
@@ -338,7 +343,7 @@ def git_add_remote(remote: str, url: str, protocol: GitProtocol = "git") -> None
 
     Args:
         remote: name for the remote
-        url: url of remote
+        url: url of the remote
         protocol: protocol of the remote ("git" or "https")
     """
     if protocol == "git":
@@ -368,7 +373,7 @@ def github_setup(
         name: name of the repository
 
     Raises:
-        ValueError: if privacy option is not valid
+        ValueError: privacy option is not valid
     """
     if privacy not in GITHUB_PRIVACY_OPTIONS:
         raise ValueError(f"{privacy=} not in {GITHUB_PRIVACY_OPTIONS}")
@@ -389,7 +394,7 @@ def github_setup(
 
 
 def notes() -> None:
-    """Print notes for the user (if hosted on GitHub)."""
+    """Print GitHub setup notes when a GitHub username is set."""
     if not "{{cookiecutter.github_username}}":
         return
 

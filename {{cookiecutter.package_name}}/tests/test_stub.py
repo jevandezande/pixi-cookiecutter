@@ -2,4 +2,4 @@
 
 
 def test_stub() -> None:
-    """Stub test to ensure the test suite runs."""
+    """Ensure the test suite runs."""

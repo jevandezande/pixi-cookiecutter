@@ -32,7 +32,7 @@ def check_line_length(line_length: str) -> None:
         line_length: line length to check
 
     Raises:
-        ValueError: if the line length is not an integer or is too short
+        ValueError: line length is not an integer or is too short
 
     Examples:
         >>> check_line_length("100")
@@ -57,11 +57,13 @@ def check_line_length(line_length: str) -> None:
 def check_python_version(python_version: str) -> None:
     """Check that the python version is a supported `major.minor` version.
 
+    A minor below the supported minimum logs a warning and still returns.
+
     Args:
         python_version: python version to check
 
     Raises:
-        ValueError: if the version is not a `major.minor` version of Python 3
+        ValueError: version is not a `major.minor` version of Python 3
 
     Examples:
         >>> check_python_version("3.14")
@@ -101,7 +103,7 @@ def check_github_username(github_username: str, github_setup: str) -> None:
         github_setup: privacy of the GitHub repository to create (or "None")
 
     Raises:
-        ValueError: if a repository is requested without a username, or the username is not one
+        ValueError: repository is requested without a username, or username is not one
             GitHub would accept
 
     Examples:
@@ -137,7 +139,7 @@ def check_toml_string(name: str, value: str) -> None:
         value: option value to check
 
     Raises:
-        ValueError: if the value contains a character that would break `pyproject.toml`
+        ValueError: value contains a character that would break `pyproject.toml`
 
     Examples:
         >>> check_toml_string("author_name", "")
@@ -162,7 +164,7 @@ def check_module_name(module_name: str) -> None:
         module_name: name of the module to check
 
     Raises:
-        ValueError: if module name is not a valid Python module name
+        ValueError: module name is not a valid Python module name
 
     Examples:
         >>> check_module_name("valid_module_name")
