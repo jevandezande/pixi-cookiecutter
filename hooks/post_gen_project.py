@@ -393,9 +393,13 @@ def github_setup(
         logger.error(f"Error setting upstream to {default_branch}: {e}")
 
 
-def notes() -> None:
-    """Print GitHub setup notes when a GitHub username is set."""
-    if not "{{cookiecutter.github_username}}":
+def notes(github_username: str = "{{cookiecutter.github_username}}") -> None:
+    """Print GitHub setup notes when a GitHub username is set.
+
+    Args:
+        github_username: GitHub user or organization that owns the repository
+    """
+    if not github_username:
         return
 
     logger.info(
