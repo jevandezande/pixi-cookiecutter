@@ -44,15 +44,15 @@ mdlint-check = { cmd="rumdl check ." }
 check = { depends-on = ["fmt-check", "lint-check", "mdfmt-check", "mdlint-check", "types", "test"] }
 
 [tool.pixi.feature.dev.dependencies]
-pytest = ">=9"
-pytest-cov = ">=7"
-ruff = ">=0.16"
-prek = ">=0.5"
 {pixi_test_dependencies}
 
 [tool.pixi.feature.dev.pypi-dependencies]
-rumdl = ">=0.2"
-ty = ">=0.0.75"
+prek = ">=0.5.3"
+pytest = ">=9.1.1"
+pytest-cov = ">=7.1.0"
+ruff = ">=0.16.8"
+rumdl = ">=0.2.77"
+ty = ">=0.0.83"
 
 [tool.ruff]
 extend-exclude = ["*.md"]

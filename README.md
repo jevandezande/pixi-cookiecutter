@@ -64,7 +64,7 @@ Cookiecutter deletes the output directory when a hook fails. Keep it with
 | `package_name` | Importable package name, defaulting to `project_name` lowercased with `_` for spaces and dashes. Names the repository, the output directory, and the source directory |
 | `project_url` | Repository URL, defaulting to the GitHub one built from `github_username` and `package_name`. Used for the README badges, and as the `origin` remote when `github_setup=None` |
 | `pixi_dependencies` | Space-separated conda dependencies, with `@` pinning a version (e.g. `numpy scipy@1.14.*`). Written to `[tool.pixi.dependencies]` |
-| `pixi_test_dependencies` | Same, written to `[tool.pixi.feature.dev.dependencies]` alongside the tools the template pins |
+| `pixi_test_dependencies` | Same, written to `[tool.pixi.feature.dev.dependencies]`. The tools the template pins are PyPI dependencies |
 | `python_version` | Minimum `major.minor` version, written to `requires-python` |
 | `line_length` | Ruff line length, 80 or greater |
 | `license` | `MIT`, `Apache-2.0`, `BSD-3-Clause`, or `None`. `None` writes no LICENSE and declares no license in `pyproject.toml` |
