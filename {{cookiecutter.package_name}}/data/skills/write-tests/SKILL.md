@@ -13,6 +13,9 @@ Follow these conventions when writing or modifying tests in this codebase.
 - **Only write tests that provide real information.** Avoid testing trivial things like object construction or obvious attribute access. Test behavior and computations.
 - **Don't check types in tests.** Types are verified by the static type checker (`ty`). Avoid using `isinstance`, `type()`, or other type assertions in tests.
 - **Write doctests to explain function usage.** Doctests are a quick way to show how to use a function and expected output; they also are quick smoke tests.
+- Prefer concrete expected values when they are known; use relational assertions when the relationship is the behavior being tested.
+- If a test needs conditional branches, consider separate cases or parametrization so each result is clear.
+- Remove temporary tests that do not protect lasting behavior.
 
 ## File and Function Structure
 
@@ -23,9 +26,7 @@ Use plain functions, never classes:
 ```python
 """Tests for the Spam."""
 
-import numpy as np
-from numpy.testing import assert_almost_equal as aae
-from pytest import approx, mark, param, raises
+from pytest import approx
 
 from spam import Spam
 
@@ -82,7 +83,7 @@ Use `param(..., marks=[mark.regression])` to apply markers to individual paramet
     ],
 )
 def test_weights(spam_type: str, weight: float) -> None:
-    """Test energy for multiple molecules."""
+    """Test weights for multiple spam varieties."""
     spam = Spam(spam_type)
     assert spam.weight == approx(weight)
 ```
@@ -96,11 +97,11 @@ When a regression test is related to a GitHub issue, link it in the docstring:
 ```python
 @mark.regression
 def test_low_sodium_spam() -> None:
-    """They forgot to remove the sodium originally.
+    """Test the sodium content of low-sodium spam.
 
-    https://example.com/flying_circus/spam/issues/1
+    Regression: https://example.com/flying_circus/spam/issues/1
     """
-    ...
+    assert Spam("low sodium").sodium_mg == approx(50)
 ```
 
 Regression tests verify:

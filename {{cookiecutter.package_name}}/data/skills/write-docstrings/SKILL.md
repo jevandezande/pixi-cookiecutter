@@ -8,13 +8,16 @@ argument-hint: "[source code]"
 
 Required for: all public modules, classes, functions, and methods
 
+Describe current behavior. Do not use docstrings to explain why changes were made or to recount prior versions.
+
 ## Format: Google-style
 
 1. First line is a simple summary in imperative or indicative mood, ending in a period
 2. Use sections when relevant: `Args`, `Returns`, `Raises`, `Examples`
 3. Do not place type information in docstrings, use type annotations only
 4. Do not use leading articles in parameter, return, and error descriptions "a", "an", or "the"
-5. Only use single backticks (e.g. `Spam`, not ``Spam``)
+5. Omit default values unless they are non-obvious and useful to the reader
+6. Only use single backticks (e.g. `Spam`, not ``Spam``)
 
 ## Example
 
@@ -56,7 +59,7 @@ def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[
 ## Module and class docstrings
 
 - **Module docstrings:** single sentence describing the module's purpose; placed at the top of the file before any imports.
-- **Class docstrings:** describe the class's purpose and any important attributes or invariants; placed immediately after the `class` line.
+- **Class docstrings:** describe the class's purpose and any important attributes or invariants; placed immediately after the `class` line. Avoid lengthy explanations of design choices.
 
 ## Miscellaneous
 

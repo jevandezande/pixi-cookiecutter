@@ -27,6 +27,11 @@ Python version: >=3.13
 
 See skill `write-docstrings`
 
+### Comments
+
+- Use comments sparingly to clarify non-obvious code or constraints.
+- Do not use comments to narrate changes or restate what the code already says.
+
 ### Type annotations
 
 - All functions must have complete type annotations
@@ -34,7 +39,10 @@ See skill `write-docstrings`
 - Use modern syntax: `list[str]`, `dict[str, int]` (not `List[str]`, `Dict[str, int]`)
 - Do not use a bare `dict`, always annotate the type of the `dict` (e.g. `dict[str, float]`)
 - Use `Any` in `dict` annotations only if absolutely necessary
+- Prefer `TypedDict` over `dict[str, Any]` when keys and value types are known
+- Prefer precise types over `Any` or `object` when the type is known
 - Use `|` for union types: `str | None`
+- Use `Self` for methods that return an instance of their class when appropriate
 - Avoid `from __future__ import annotations`
 - Use modern numpy type hints where useful, and use TypeAlias to make code more readable, e.g.
   - `type Matrix[T: np.generic] = np.ndarray[tuple[int, int], np.dtype[T]]`

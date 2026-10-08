@@ -16,6 +16,7 @@ allowed-tools:
 Do a final cleanup polish pass on the code in $ARGUMENTS (or the current package if no argument given).
 
 Use the `write-code` skill to understand code conventions.
+Use the `write-docstrings` skill when editing docstrings.
 
 1. Re-read every file that was created or modified.
 2. Check for Pythonic style:
@@ -24,7 +25,7 @@ Use the `write-code` skill to understand code conventions.
    - Use `pathlib` instead of `os.path`
    - Use dataclasses or named tuples for structured data
 3. Remove dead code, unused imports, and commented-out code
-4. Remove unecessary tests, such as one that simply check types or were used for development
+4. Remove temporary tests and tests that do not provide durable behavioral value.
 5. Verify docstrings on all public APIs (follow `write-docstrings` skill conventions).
 6. Verify complete type annotations on all public functions and methods.
 7. Run the full check suite:
