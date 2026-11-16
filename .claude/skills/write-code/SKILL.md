@@ -146,8 +146,9 @@ e.g.
 Break up work into manageable commits, keeping track of what changed in each commit.
 When the work is complete, create a descriptive PR, breaking down what was added, changed, and removed.
 
-e.g.
-`gh pr create --title "Adds Jalapeno Spam" --body "Spam is a tasty processed meat ..."`
+Write the PR description to a file, then run:
+
+`gh pr create --title "Add Jalapeno Spam" --body-file /tmp/pr-body.md`
 
 If a worktree was created, offer to clean it up.
 

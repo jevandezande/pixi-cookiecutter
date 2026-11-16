@@ -19,7 +19,7 @@
 - Static typing with [ty](https://github.com/astral-sh/ty)
 - Testing with [pytest](https://docs.pytest.org/en/latest)
 - Git hooks that run all the above with [prek](https://prek.j178.dev)
-- Continuous integration with [GitHub Actions](https://github.com/features/actions)
+- Continuous integration with [GitHub Actions](https://github.com/features/actions), and a pull request template
 - Code coverage with [Codecov](https://docs.codecov.com/docs)
 
 ## Setup

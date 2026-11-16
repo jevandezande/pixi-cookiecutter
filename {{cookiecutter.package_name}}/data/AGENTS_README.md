@@ -68,3 +68,8 @@ File edits trigger automatic formatting — no manual `pixi run fmt` needed. Pre
 Project defaults live in `.claude/settings.json` (tracked by git); machine-specific overrides
 belong in `.claude/settings.local.json` (gitignored).
 {%- endif %}
+
+## Pull requests
+
+Follow `.github/pull_request_template.md` for PR descriptions. Fill the applicable sections,
+remove empty optional sections, and pass the text to `gh pr create` with `--body-file`.

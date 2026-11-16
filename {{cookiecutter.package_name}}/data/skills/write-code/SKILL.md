@@ -146,8 +146,10 @@ e.g.
 Break up work into manageable commits, keeping track of what changed in each commit.
 When the work is complete, create a descriptive PR, breaking down what was added, changed, and removed.
 
-e.g.
-`gh pr create --title "Adds Jalapeno Spam" --body "Spam is a tasty processed meat ..."`
+Follow `.github/pull_request_template.md`, including validation results. Remove empty optional
+sections and write the description to a file, then run:
+
+`gh pr create --title "Add Jalapeno Spam" --body-file /tmp/pr-body.md`
 
 If a worktree was created, offer to clean it up.
 
