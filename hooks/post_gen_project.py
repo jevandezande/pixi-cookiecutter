@@ -16,7 +16,8 @@ logger = logging.getLogger("post_gen_project")
 type GitProtocol = Literal["git", "https"]
 GITHUB_PRIVACY_OPTIONS = ("private", "internal", "public")
 DEFAULT_BRANCH = "master"
-AGENT_DIR = Path(".claude")
+CLAUDE_DIR = Path(".claude")
+CODEX_DIR = Path(".agents")
 
 
 class CodingAgent(StrEnum):
@@ -258,14 +259,16 @@ def setup_coding_agent_files(agent: str) -> None:
         return
 
     logger.info(f"Setting up files for {coding_agent.value}")
-    shutil.copytree("data/skills", AGENT_DIR / "skills")
 
+    # Each agent discovers skills in its own directory only
     match coding_agent:
         case CodingAgent.CLAUDE:
+            shutil.copytree("data/skills", CLAUDE_DIR / "skills")
             # Settings are only understood by Claude Code
-            shutil.copy(Path("data/claude/settings.json"), AGENT_DIR / "settings.json")
+            shutil.copy(Path("data/claude/settings.json"), CLAUDE_DIR / "settings.json")
             cmd = "claude -p 'Read AGENTS.md and update it'"
         case CodingAgent.CODEX:
+            shutil.copytree("data/skills", CODEX_DIR / "skills")
             cmd = "codex exec 'Read AGENTS.md and update it'"
         case _:
             assert_never(coding_agent)

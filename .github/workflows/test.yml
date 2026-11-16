@@ -118,11 +118,21 @@ jobs:
           else
             test -f LICENSE
           fi
-          if [ "${{ matrix.coding_agent }}" = "None" ]; then
-            test ! -d .claude
-          else
-            test -f .claude/skills/write-code/SKILL.md
-          fi
+          case "${{ matrix.coding_agent }}" in
+            Claude)
+              test -f .claude/skills/write-code/SKILL.md
+              test ! -d .agents
+              ;;
+            Codex)
+              test -f .agents/skills/write-code/SKILL.md
+              test ! -d .claude
+              ;;
+            None)
+              test ! -d .claude
+              test ! -d .agents
+              ;;
+            *) exit 1 ;;
+          esac
           test ! -f CLAUDE.md
           if [ "${{ matrix.coding_agent }}" = "Claude" ]; then
             test -f .claude/settings.json

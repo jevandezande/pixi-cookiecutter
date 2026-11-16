@@ -69,7 +69,7 @@ Cookiecutter deletes the output directory when a hook fails. Keep it with
 | `line_length` | Ruff line length, 80 or greater |
 | `license` | `MIT`, `Apache-2.0`, `BSD-3-Clause`, or `None`. `None` writes no LICENSE and declares no license in `pyproject.toml` |
 | `github_setup` | Create the GitHub repository as `private`, `internal`, `public`, or `None`. The repository is `github_username/package_name`, so `internal` needs `github_username` to be an organization |
-| `coding_agent` | `Claude`, `Codex`, or `None`. `AGENTS.md` is always written, and every agent reads it; `Claude` additionally gets `.claude/settings.json`. The skills land in `.claude/skills/` either way |
+| `coding_agent` | `Claude`, `Codex`, or `None`. `AGENTS.md` is always written, and every agent reads it; `Claude` additionally gets `.claude/settings.json`. The skills land where the agent discovers them: `.claude/skills/` for Claude, `.agents/skills/` for Codex |
 
 `github_username` is required when `github_setup` is not `None`, since it owns the new repository.
 

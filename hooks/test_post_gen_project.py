@@ -69,22 +69,26 @@ def test_set_license_copies_and_formats(tmp_path: Path, monkeypatch: pytest.Monk
     assert "{{cookiecutter.author_name}}" in license_contents
 
 
-def test_setup_coding_agent_files_claude(agent_data: Path) -> None:
-    """Claude gets AGENTS.md, the skills, and the settings only it understands."""
-    post_gen_project.setup_coding_agent_files("Claude")
+@mark.parametrize(
+    ("agent", "skills", "other_skills", "settings"),
+    [
+        ("Claude", ".claude/skills", ".agents/skills", True),
+        ("Codex", ".agents/skills", ".claude/skills", False),
+    ],
+)
+def test_setup_coding_agent_files_puts_skills_where_the_agent_reads_them(
+    agent_data: Path, agent: str, skills: str, other_skills: str, settings: bool
+) -> None:
+    """Skills land in the agent's own skills directory; only Claude gets settings.json.
+
+    Claude Code reads `.claude/skills/` and Codex `.agents/skills/`, neither the other's.
+    """
+    post_gen_project.setup_coding_agent_files(agent)
 
     assert (agent_data / "AGENTS.md").exists()
-    assert (agent_data / ".claude" / "skills" / "write-code" / "SKILL.md").exists()
-    assert (agent_data / ".claude" / "settings.json").exists()
-
-
-def test_setup_coding_agent_files_codex(agent_data: Path) -> None:
-    """Codex gets the same skills, but none of the Claude-only files."""
-    post_gen_project.setup_coding_agent_files("Codex")
-
-    assert (agent_data / "AGENTS.md").exists()
-    assert (agent_data / ".claude" / "skills" / "write-code" / "SKILL.md").exists()
-    assert not (agent_data / ".claude" / "settings.json").exists()
+    assert (agent_data / skills / "write-code" / "SKILL.md").exists()
+    assert not (agent_data / other_skills).exists()
+    assert (agent_data / ".claude" / "settings.json").exists() is settings
 
 
 def test_setup_coding_agent_files_none_still_writes_agents_md(agent_data: Path) -> None:
@@ -93,6 +97,7 @@ def test_setup_coding_agent_files_none_still_writes_agents_md(agent_data: Path) 
 
     assert (agent_data / "AGENTS.md").exists()
     assert not (agent_data / ".claude").exists()
+    assert not (agent_data / ".agents").exists()
 
 
 def test_setup_coding_agent_files_rejects_unknown(agent_data: Path) -> None:

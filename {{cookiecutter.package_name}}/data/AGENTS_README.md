@@ -13,18 +13,18 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 
 ## AI Skills
 {% if cookiecutter.coding_agent == "Claude" %}
-This project uses Claude Skills. Use the `skill` tool to load `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
+Conventions live in `.claude/skills/<name>/SKILL.md`. Load `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` with the `skill` tool when available, or read their `SKILL.md` files directly. Do not make code changes without consulting the relevant skills.
 {%- elif cookiecutter.coding_agent == "Codex" %}
-Conventions live in `.claude/skills/<name>/SKILL.md`. Read `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
+Conventions live in `.agents/skills/<name>/SKILL.md`. Read `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
 {%- else %}
 TODO: no skills were generated; write the conventions this project follows here.
 {%- endif %}
 
 ## When in doubt
 {% if cookiecutter.coding_agent == "Claude" %}
-- Check the skills loaded via the `skill` tool
-{%- elif cookiecutter.coding_agent == "Codex" %}
 - Check the skills in `.claude/skills/`
+{%- elif cookiecutter.coding_agent == "Codex" %}
+- Check the skills in `.agents/skills/`
 {%- endif %}
 - Run individual tools to identify issues
 - Ask user for clarification on ambiguous requirements
@@ -38,8 +38,10 @@ Structure:
 - `{{cookiecutter.package_name}}/` - source code (this is a flat layout)
 - `tests/` - test suite
 - `.github/workflows/` - CI/CD (test)
-{%- if cookiecutter.coding_agent != "None" %}
+{%- if cookiecutter.coding_agent == "Claude" %}
 - `.claude/skills/` - coding conventions
+{%- elif cookiecutter.coding_agent == "Codex" %}
+- `.agents/skills/` - coding conventions
 {%- endif %}
 - TODO: list other important folders
 
