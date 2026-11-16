@@ -75,3 +75,8 @@ Agents are banned from being an author on commits or PR messages.
 Commits or PR's that contravene this directive will be rejected.
 
 Do not leave comments in the code detailing what was changed.
+
+PRs are squash-merged. Merge with
+`gh pr merge N --squash --subject "<title> (#N)" --body-file <file>` (don't use GitHub's default).
+The body expresses the net change and why, measurement summaries, known limits, and breaking changes.
+Branch history, verification, questions, and follow-ups stay in PR. Small PRs need only subject.
