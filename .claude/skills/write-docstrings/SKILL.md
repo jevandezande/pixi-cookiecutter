@@ -18,6 +18,9 @@ Describe current behavior. Do not use docstrings to explain why changes were mad
 4. Do not use leading articles in parameter, return, and error descriptions "a", "an", or "the"
 5. Omit default values unless they are non-obvious and useful to the reader
 6. Only use single backticks (e.g. `Spam`, not ``Spam``)
+7. Name the unit whenever a value has one: `in seconds`, `in bytes`
+8. `Raises` names the condition, not the act of raising: `ValueError: threshold is negative`, not
+   `ValueError: raised if threshold is negative`
 
 ## Example
 
@@ -37,7 +40,7 @@ def process_spam(input_data: list[tuple[str, int]], threshold: int = 2) -> dict[
 
     Examples:
         >>> process_spam([("jalapeno", 5), ("regular", 3), ("jalapeno", 9), ("low sodium", 1)], 2)
-        {"jalapeno": 14, "regular": 3}
+        {'jalapeno': 14, 'regular': 3}
     """
 ```
 

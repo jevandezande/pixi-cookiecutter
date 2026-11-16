@@ -87,6 +87,26 @@ def test_weights(spam_type: str, weight: float) -> None:
     assert spam.weight == approx(weight)
 ```
 
+## Exceptions
+
+Assert the most specific exception class, not a base such as `Exception`, so the test also pins
+which error the caller sees. Add `match=` only for the part of the message that is contract, such
+as the name of the offending value, never the full wording.
+
+```python
+with raises(SpamTypeError, match="kale"):
+    Spam("kale")
+```
+
+## Tests That Need What a Machine May Lack
+
+Never check for a requirement and `return`: pytest counts that as a pass, so a machine that cannot
+run the test reports it green. Skip visibly instead, with a reason a reader can act on:
+
+- a platform or a program: `@mark.skipif(..., reason="needs <what>")`
+- an optional package: `importorskip("package")`
+- a whole module: `skip("needs <what>", allow_module_level=True)`
+
 ## Fixtures
 
 Use pytest fixtures for any setup that is repeated across multiple tests. Place fixtures in `conftest.py`:

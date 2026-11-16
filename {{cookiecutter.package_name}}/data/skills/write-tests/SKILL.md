@@ -71,7 +71,7 @@ with raises(ValueError):
 ## Parametrize Similar Tests
 
 Use `pytest.mark.parametrize` to collapse tests that differ only in inputs/outputs
-Use `param(..., marks=[mark.regression])` to apply markers to individual parametrized cases
+Use `param(..., marks=[mark.regression])` only for expensive cases excluded from the default run
 
 ```python
 @mark.parametrize(
@@ -79,7 +79,7 @@ Use `param(..., marks=[mark.regression])` to apply markers to individual paramet
     [
         ("classic", 3.14159265),
         ("maple", 4.1),
-        param("low sodium", 2.9, marks=[mark.regression]),
+        ("low sodium", 2.9),
     ],
 )
 def test_weights(spam_type: str, weight: float) -> None:
@@ -90,12 +90,14 @@ def test_weights(spam_type: str, weight: float) -> None:
 
 ## Regression Tests
 
-Mark tests that run less regularly but protect against regressions with `@mark.regression`. These are excluded from the default run (`-m 'not regression'`).
+Keep inexpensive tests for previously broken behavior in the default suite. Reserve
+`@mark.regression` for expensive or extended coverage that runs less regularly; the default
+command excludes this marker (`-m 'not regression'`). Run the extended suite with
+`pixi run test -m regression` or all tests with `pixi run test -m ''`.
 
 When a regression test is related to a GitHub issue, link it in the docstring:
 
 ```python
-@mark.regression
 def test_low_sodium_spam() -> None:
     """Test the sodium content of low-sodium spam.
 
@@ -104,11 +106,30 @@ def test_low_sodium_spam() -> None:
     assert Spam("low sodium").sodium_mg == approx(50)
 ```
 
-Regression tests verify:
+Extended coverage can include:
 
-- Previously-broken behavior is fixed and stays fixed
 - A wider range of code paths (e.g., all solvents, all supported methods)
 - Edge cases that are expensive to test on every CI run
+
+## Exceptions
+
+Assert the most specific exception class, not a base such as `Exception`, so the test also pins
+which error the caller sees. Add `match=` only for the part of the message that is contract, such
+as the name of the offending value, never the full wording.
+
+```python
+with raises(SpamTypeError, match="kale"):
+    Spam("kale")
+```
+
+## Tests That Need What a Machine May Lack
+
+Never check for a requirement and `return`: pytest counts that as a pass, so a machine that cannot
+run the test reports it green. Skip visibly instead, with a reason a reader can act on:
+
+- a platform or a program: `@mark.skipif(..., reason="needs <what>")`
+- an optional package: `importorskip("package")`
+- a whole module: `skip("needs <what>", allow_module_level=True)`
 
 ## Fixtures
 
@@ -158,7 +179,7 @@ def test_sum() -> None:  #  ❌ not descriptive enough
 Prefer importing selectively from pytest for readability
 
 ```python
-from pytest import approx, mark, param, raises
+from pytest import approx, mark, raises
 ```
 
 Standard alias for numpy array assertions:
