@@ -17,7 +17,7 @@ type GitProtocol = Literal["git", "https"]
 GITHUB_PRIVACY_OPTIONS = ("private", "internal", "public")
 DEFAULT_BRANCH = "master"
 CLAUDE_DIR = Path(".claude")
-CODEX_DIR = Path(".agents")
+SKILLS_DIR = Path(".agents/skills")
 
 
 class CodingAgent(StrEnum):
@@ -260,15 +260,16 @@ def setup_coding_agent_files(agent: str) -> None:
 
     logger.info(f"Setting up files for {coding_agent.value}")
 
-    # Each agent discovers skills in its own directory only
+    shutil.copytree("data/skills", SKILLS_DIR)
+
     match coding_agent:
         case CodingAgent.CLAUDE:
-            shutil.copytree("data/skills", CLAUDE_DIR / "skills")
+            CLAUDE_DIR.mkdir()
+            (CLAUDE_DIR / "skills").symlink_to(Path("..") / SKILLS_DIR, target_is_directory=True)
             # Settings are only understood by Claude Code
             shutil.copy(Path("data/claude/settings.json"), CLAUDE_DIR / "settings.json")
             cmd = "claude -p 'Read AGENTS.md and update it'"
         case CodingAgent.CODEX:
-            shutil.copytree("data/skills", CODEX_DIR / "skills")
             cmd = "codex exec 'Read AGENTS.md and update it'"
         case _:
             assert_never(coding_agent)

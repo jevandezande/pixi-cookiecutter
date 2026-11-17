@@ -13,11 +13,13 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 
 ## AI Skills
 
-Conventions live in `.claude/skills/<name>/SKILL.md`. Load `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` with the `skill` tool when available, or read their `SKILL.md` files directly. Do not make code changes without consulting the relevant skills.
+Read the relevant `SKILL.md` files in `.agents/skills/` before making changes. The skills are
+`write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code`; they cover
+coding conventions, documentation, tests, checks, and git workflows.
 
 ## When in doubt
 
-- Check the relevant skills in `.claude/skills/`
+- Check the relevant skill files
 - Run individual tools to identify issues
 - Ask user for clarification on ambiguous requirements
 
@@ -30,8 +32,7 @@ Structure:
 - `{{cookiecutter.package_name}}/` - cookiecutter template root (generated project)
   - `data/` - post-gen hook staging data, deleted from the generated project
   - `data/AGENTS_README.md` - the `AGENTS.md` every generated project gets
-  - `data/skills/` - skills copied to `.claude/skills/` under Claude and `.agents/skills/` under
-    Codex, since each agent reads only its own directory
+  - `data/skills/` - skills copied to `.agents/skills/`; Claude gets a `.claude/skills` symlink
 - `hooks/` - cookiecutter hooks and tests
 - `.github/workflows/` - CI/CD configuration
 - `notes.md` - setup notes and optional tools

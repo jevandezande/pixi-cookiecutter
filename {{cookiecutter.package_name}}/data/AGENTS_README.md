@@ -12,19 +12,17 @@ It covers tooling, conventions, and workflows needed to contribute effectively.
 - When unsure about code conventions or tooling
 
 ## AI Skills
-{% if cookiecutter.coding_agent == "Claude" %}
-Conventions live in `.claude/skills/<name>/SKILL.md`. Load `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` with the `skill` tool when available, or read their `SKILL.md` files directly. Do not make code changes without consulting the relevant skills.
-{%- elif cookiecutter.coding_agent == "Codex" %}
-Conventions live in `.agents/skills/<name>/SKILL.md`. Read `write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code` for detailed instructions on conventions, formatting, tests, and git workflows. Do not make code changes without consulting the relevant skills.
+{% if cookiecutter.coding_agent != "None" %}
+Read the relevant `SKILL.md` files in `.agents/skills/` before making changes. The skills are
+`write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code`; they cover
+coding conventions, documentation, tests, checks, and git workflows.
 {%- else %}
 TODO: no skills were generated; write the conventions this project follows here.
 {%- endif %}
 
 ## When in doubt
-{% if cookiecutter.coding_agent == "Claude" %}
-- Check the skills in `.claude/skills/`
-{%- elif cookiecutter.coding_agent == "Codex" %}
-- Check the skills in `.agents/skills/`
+{% if cookiecutter.coding_agent != "None" %}
+- Check the relevant skill files in `.agents/skills/`
 {%- endif %}
 - Run individual tools to identify issues
 - Ask user for clarification on ambiguous requirements
@@ -38,9 +36,7 @@ Structure:
 - `{{cookiecutter.package_name}}/` - source code (this is a flat layout)
 - `tests/` - test suite
 - `.github/workflows/` - CI/CD (test)
-{%- if cookiecutter.coding_agent == "Claude" %}
-- `.claude/skills/` - coding conventions
-{%- elif cookiecutter.coding_agent == "Codex" %}
+{%- if cookiecutter.coding_agent != "None" %}
 - `.agents/skills/` - coding conventions
 {%- endif %}
 - TODO: list other important folders

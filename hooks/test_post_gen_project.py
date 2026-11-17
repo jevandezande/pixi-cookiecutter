@@ -69,26 +69,32 @@ def test_set_license_copies_and_formats(tmp_path: Path, monkeypatch: pytest.Monk
     assert "{{cookiecutter.author_name}}" in license_contents
 
 
-@mark.parametrize(
-    ("agent", "skills", "other_skills", "settings"),
-    [
-        ("Claude", ".claude/skills", ".agents/skills", True),
-        ("Codex", ".agents/skills", ".claude/skills", False),
-    ],
-)
-def test_setup_coding_agent_files_puts_skills_where_the_agent_reads_them(
-    agent_data: Path, agent: str, skills: str, other_skills: str, settings: bool
+@mark.parametrize(("agent", "settings"), [("Claude", True), ("Codex", False)])
+def test_setup_coding_agent_files_uses_shared_skills(
+    agent_data: Path, agent: str, settings: bool
 ) -> None:
-    """Skills land in the agent's own skills directory; only Claude gets settings.json.
-
-    Claude Code reads `.claude/skills/` and Codex `.agents/skills/`, neither the other's.
-    """
+    """Skills share one directory; only Claude gets settings and a discovery symlink."""
     post_gen_project.setup_coding_agent_files(agent)
 
     assert (agent_data / "AGENTS.md").exists()
-    assert (agent_data / skills / "write-code" / "SKILL.md").exists()
-    assert not (agent_data / other_skills).exists()
-    assert (agent_data / ".claude" / "settings.json").exists() is settings
+    skill = agent_data / ".agents/skills/write-code/SKILL.md"
+    assert skill.read_text(encoding="utf-8") == "skill\n"
+    assert (agent_data / ".claude").exists() is settings
+    assert (agent_data / ".claude/skills").is_symlink() is settings
+    assert (agent_data / ".claude/settings.json").exists() is settings
+
+
+def test_claude_skills_link_survives_project_move(
+    agent_data: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Claude's skills link reaches the shared files after the project moves."""
+    post_gen_project.setup_coding_agent_files("Claude")
+
+    monkeypatch.chdir(agent_data.parent)
+    moved = agent_data.rename(agent_data.with_name(f"{agent_data.name}-moved"))
+    link = moved / ".claude/skills"
+    assert link.resolve() == (moved / ".agents/skills").resolve()
+    assert (link / "write-code/SKILL.md").read_text(encoding="utf-8") == "skill\n"
 
 
 def test_setup_coding_agent_files_none_still_writes_agents_md(agent_data: Path) -> None:
