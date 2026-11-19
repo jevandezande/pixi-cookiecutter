@@ -53,8 +53,8 @@ Machine-local Claude Code overrides go in `.claude/settings.local.json` (gitigno
 
 ## Pull requests
 
-Follow `.github/pull_request_template.md` for PR descriptions. Fill the applicable sections,
-remove empty optional sections, and pass the text to `gh pr create` with `--body-file`.
+Follow `.github/pull_request_template.md` for PR descriptions. Fill the sections that apply,
+delete empty sections, and pass the text to `gh pr create` with `--body-file`.
 
 PRs are squash-merged. Merge with
 `gh pr merge N --squash --subject "<title> (#N)" --body-file <file>` (don't use GitHub's default).

@@ -144,12 +144,11 @@ e.g.
 `git switch -c feat/jalapeno_spam`
 
 Break up work into manageable commits, keeping track of what changed in each commit.
-When the work is complete, create a descriptive PR, breaking down what was added, changed, and removed.
+When the work is complete, create a descriptive PR. Follow the project's PR template when present
+and omit empty sections. Write the description to a file and pass it with `--body-file`.
 
-Follow `.github/pull_request_template.md`, including validation results. Remove empty optional
-sections and write the description to a file, then run:
-
-`gh pr create --title "Add Jalapeno Spam" --body-file /tmp/pr-body.md`
+e.g.
+`gh pr create --title "Add Jalapeno Spam" --body-file <file>`
 
 If a worktree was created, offer to clean it up.
 
@@ -164,7 +163,7 @@ Format: conventional commits recommended
 - `refactor:` - code refactoring
 - `chore:` - maintenance tasks
 
-Never include Claude as a co-author on commits.
+Never credit an AI agent as an author or co-author on commits or PR messages.
 
 #### Example
 
