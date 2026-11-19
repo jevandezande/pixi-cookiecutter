@@ -49,7 +49,7 @@ The cookiecutter will automagically:
 - Add the requested dependencies and solve the environment with `pixi update`
 - Allow direnv, so the environment activates on `cd`
 - Install pre-commit and pre-push hooks with prek
-- Set up the chosen coding agent, if any
+- Set up Claude Code and Codex: `AGENTS.md`, skills in `.agents/skills/` with `.claude/skills/` a symlink to it, and a formatting hook for each agent
 - Run the project's own commit and push hooks, tests included, and report anything they flag
 - Make the initial commit
 - Add the `origin` remote and, if requested, create the GitHub repository and push
@@ -69,7 +69,6 @@ Cookiecutter deletes the output directory when a hook fails. Keep it with
 | `line_length` | Ruff line length, 80 or greater |
 | `license` | `MIT`, `Apache-2.0`, `BSD-3-Clause`, or `None`. `None` writes no LICENSE and declares no license in `pyproject.toml` |
 | `github_setup` | Create the GitHub repository as `private`, `internal`, `public`, or `None`. The repository is `github_username/package_name`, so `internal` needs `github_username` to be an organization |
-| `coding_agent` | `Claude`, `Codex`, or `None`. `AGENTS.md` is always written. When an agent is selected, skills live in `.agents/skills/`; `Claude` additionally gets `.claude/settings.json` and a `.claude/skills` symlink to the shared skills |
 
 `github_username` is required when `github_setup` is not `None`, since it owns the new repository.
 

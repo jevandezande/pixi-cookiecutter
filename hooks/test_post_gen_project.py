@@ -17,15 +17,15 @@ from hooks import post_gen_project
 
 @pytest.fixture
 def agent_data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Create the `data/` directory that the coding agent setup copies from."""
-    skill_path = tmp_path / "data" / "skills" / "write-code"
+    """Create the `data/` directory that the agent setup copies from."""
+    skill_path = tmp_path / "data" / ".agents" / "skills" / "write-code"
     skill_path.mkdir(parents=True)
     (skill_path / "SKILL.md").write_text("skill\n", encoding="utf-8")
 
-    claude_path = tmp_path / "data" / "claude"
-    claude_path.mkdir(parents=True)
-    (claude_path / "settings.json").write_text("{}\n", encoding="utf-8")
-    (tmp_path / "data" / "AGENTS_README.md").write_text("# Guide\n", encoding="utf-8")
+    for agent, settings in ((".claude", "settings.json"), (".codex", "hooks.json")):
+        (tmp_path / "data" / agent).mkdir()
+        (tmp_path / "data" / agent / settings).write_text("{}\n", encoding="utf-8")
+    (tmp_path / "data" / "AGENTS.md").write_text("# Guide\n", encoding="utf-8")
 
     monkeypatch.chdir(tmp_path)
     return tmp_path
@@ -69,47 +69,47 @@ def test_set_license_copies_and_formats(tmp_path: Path, monkeypatch: pytest.Monk
     assert "{{cookiecutter.author_name}}" in license_contents
 
 
-@mark.parametrize(("agent", "settings"), [("Claude", True), ("Codex", False)])
-def test_setup_coding_agent_files_uses_shared_skills(
-    agent_data: Path, agent: str, settings: bool
-) -> None:
-    """Skills share one directory; only Claude gets settings and a discovery symlink."""
-    post_gen_project.setup_coding_agent_files(agent)
+def test_setup_agent_files_serves_claude_and_codex(agent_data: Path) -> None:
+    """Write skills to `.agents/skills/` and make `.claude/skills/` a symlink to it.
 
-    assert (agent_data / "AGENTS.md").exists()
-    skill = agent_data / ".agents/skills/write-code/SKILL.md"
-    assert skill.read_text(encoding="utf-8") == "skill\n"
-    assert (agent_data / ".claude").exists() is settings
-    assert (agent_data / ".claude/skills").is_symlink() is settings
-    assert (agent_data / ".claude/settings.json").exists() is settings
+    Codex reads `.agents/skills/` and Claude Code `.claude/skills/`, neither the other's; both
+    read AGENTS.md, so no CLAUDE.md, which would stop Claude Code reading AGENTS.md.
+    """
+    post_gen_project.setup_agent_files()
+
+    link = agent_data / ".claude" / "skills"
+    assert link.is_symlink()
+    assert link.resolve() == (agent_data / ".agents" / "skills").resolve()
+    assert (link / "write-code" / "SKILL.md").read_text(encoding="utf-8") == "skill\n"
+    assert (agent_data / ".claude" / "settings.json").exists()
+    assert (agent_data / ".codex" / "hooks.json").exists()
+    assert (agent_data / "AGENTS.md").read_text(encoding="utf-8") == "# Guide\n"
+    assert not (agent_data / "CLAUDE.md").exists()
 
 
 def test_claude_skills_link_survives_project_move(
     agent_data: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Claude's skills link reaches the shared files after the project moves."""
-    post_gen_project.setup_coding_agent_files("Claude")
+    post_gen_project.setup_agent_files()
 
     monkeypatch.chdir(agent_data.parent)
     moved = agent_data.rename(agent_data.with_name(f"{agent_data.name}-moved"))
-    link = moved / ".claude/skills"
-    assert link.resolve() == (moved / ".agents/skills").resolve()
-    assert (link / "write-code/SKILL.md").read_text(encoding="utf-8") == "skill\n"
+    link = moved / ".claude" / "skills"
+    assert link.resolve() == (moved / ".agents" / "skills").resolve()
+    assert (link / "write-code" / "SKILL.md").read_text(encoding="utf-8") == "skill\n"
 
 
-def test_setup_coding_agent_files_none_still_writes_agents_md(agent_data: Path) -> None:
-    """AGENTS.md ships without an agent, since any agent may later read it."""
-    post_gen_project.setup_coding_agent_files("None")
+def test_claude_and_codex_run_the_same_edit_hooks() -> None:
+    """Format after an edit the same way whichever agent made it.
 
-    assert (agent_data / "AGENTS.md").exists()
-    assert not (agent_data / ".claude").exists()
-    assert not (agent_data / ".agents").exists()
+    Both agents read the same `hooks` shape, and both match file edits with `Edit|Write`.
+    """
+    data = TEMPLATE_ROOT / "data"
+    claude = json.loads((data / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    codex = json.loads((data / ".codex" / "hooks.json").read_text(encoding="utf-8"))
 
-
-def test_setup_coding_agent_files_rejects_unknown(agent_data: Path) -> None:
-    """Reject an agent with no files to copy."""
-    with pytest.raises(ValueError, match="clippy"):
-        post_gen_project.setup_coding_agent_files("Clippy")
+    assert claude["hooks"] == codex["hooks"]
 
 
 @pytest.mark.parametrize(
@@ -309,11 +309,8 @@ def render_template(context: dict[str, str]) -> dict[Path, str]:
 
 
 @mark.parametrize("license_name", ["MIT", "Apache-2.0", "BSD-3-Clause", "None"])
-@mark.parametrize("coding_agent", ["Claude", "Codex", "None"])
 @mark.parametrize("author_name", ["Jane Doe", ""])
-def test_template_renders_to_well_formed_files(
-    license_name: str, coding_agent: str, author_name: str
-) -> None:
+def test_template_renders_to_well_formed_files(license_name: str, author_name: str) -> None:
     """Render every option combination, then parse the TOML, JSON, and Python it produces.
 
     This is the only check that a comment or a conditional edit did not take a Jinja tag with
@@ -329,7 +326,6 @@ def test_template_renders_to_well_formed_files(
         "python_version": "3.14",
         "line_length": "100",
         "license": license_name,
-        "coding_agent": coding_agent,
     }
 
     for relative, contents in render_template(context).items():

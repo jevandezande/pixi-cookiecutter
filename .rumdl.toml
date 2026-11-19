@@ -13,7 +13,6 @@ exclude = [
     "vendor",
     "dist",
     "build",
-    "**/data/AGENTS_README.md",
 ]
 
 respect-gitignore = true

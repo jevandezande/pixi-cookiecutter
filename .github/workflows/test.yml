@@ -62,20 +62,16 @@ jobs:
         include:
           - name: defaults
             license: MIT
-            coding_agent: None
           # The only leg with dependencies
-          - name: Claude, with dependencies
+          - name: with dependencies
             license: Apache-2.0
-            coding_agent: Claude
             pixi_dependencies: numpy
             pixi_test_dependencies: pytest-xdist@>=3.6
-          - name: BSD-3-Clause, Codex
+          - name: BSD-3-Clause
             license: BSD-3-Clause
-            coding_agent: Codex
           # No LICENSE file, and no license in pyproject.toml
           - name: unlicensed
             license: None
-            coding_agent: None
 
     steps:
       - uses: actions/checkout@v7.0.1
@@ -99,7 +95,6 @@ jobs:
         run: |
           pixi run cookiecutter . --no-input --config-file template_config.yml -o .. \
             license="${{ matrix.license }}" \
-            coding_agent="${{ matrix.coding_agent }}" \
             pixi_dependencies="${{ matrix.pixi_dependencies }}" \
             pixi_test_dependencies="${{ matrix.pixi_test_dependencies }}"
 
@@ -118,25 +113,10 @@ jobs:
           else
             test -f LICENSE
           fi
-          case "${{ matrix.coding_agent }}" in
-            Claude)
-              test -f .agents/skills/write-code/SKILL.md
-              test -L .claude/skills
-              test .claude/skills -ef .agents/skills
-              ;;
-            Codex)
-              test -f .agents/skills/write-code/SKILL.md
-              test ! -d .claude
-              ;;
-            None)
-              test ! -d .claude
-              test ! -d .agents
-              ;;
-            *) exit 1 ;;
-          esac
+          test -f .agents/skills/write-code/SKILL.md
+          test -L .claude/skills
+          test .claude/skills -ef .agents/skills
+          test -f .claude/skills/write-code/SKILL.md
+          test -f .claude/settings.json
+          test -f .codex/hooks.json
           test ! -f CLAUDE.md
-          if [ "${{ matrix.coding_agent }}" = "Claude" ]; then
-            test -f .claude/settings.json
-          else
-            test ! -f .claude/settings.json
-          fi

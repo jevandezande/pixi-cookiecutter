@@ -4,9 +4,8 @@ import logging
 import shutil
 import subprocess
 from datetime import datetime
-from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal, assert_never
+from typing import Any, Literal
 from urllib.parse import urlparse
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -16,16 +15,7 @@ logger = logging.getLogger("post_gen_project")
 type GitProtocol = Literal["git", "https"]
 GITHUB_PRIVACY_OPTIONS = ("private", "internal", "public")
 DEFAULT_BRANCH = "master"
-CLAUDE_DIR = Path(".claude")
-SKILLS_DIR = Path(".agents/skills")
-
-
-class CodingAgent(StrEnum):
-    """Coding agents supported, as lowercased `cookiecutter.json` choices."""
-
-    NONE = "none"
-    CLAUDE = "claude"
-    CODEX = "codex"
+AGENT_SKILLS = Path(".agents/skills")
 
 
 def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
@@ -240,41 +230,19 @@ def git_hooks() -> None:
     call("pixi run -e dev prek install")
 
 
-def setup_coding_agent_files(agent: str) -> None:
-    """Set up the selected agent's files; AGENTS.md ships even when none was chosen.
+def setup_agent_files() -> None:
+    """Write AGENTS.md, skills, and hooks where Codex and Claude Code each discover them.
 
     Every agent reads the conventions from the same `AGENTS.md`, so none of them get a second
-    copy to keep in step.
-
-    Args:
-        agent: coding agent name ("claude", "codex", or "none")
-
-    Raises:
-        ValueError: coding agent is not supported
+    copy to keep in step. Codex reads skills from `.agents/skills/` and Claude Code from
+    `.claude/skills/`, neither the other's; Claude's directory is a symlink, so one copy of the
+    skills serves both. Each agent keeps its settings and hooks in its own directory.
     """
-    coding_agent = CodingAgent(agent.lower())
-    shutil.copy(Path("data/AGENTS_README.md"), Path("AGENTS.md"))
-
-    if coding_agent is CodingAgent.NONE:
-        return
-
-    logger.info(f"Setting up files for {coding_agent.value}")
-
-    shutil.copytree("data/skills", SKILLS_DIR)
-
-    match coding_agent:
-        case CodingAgent.CLAUDE:
-            CLAUDE_DIR.mkdir()
-            (CLAUDE_DIR / "skills").symlink_to(Path("..") / SKILLS_DIR, target_is_directory=True)
-            # Settings are only understood by Claude Code
-            shutil.copy(Path("data/claude/settings.json"), CLAUDE_DIR / "settings.json")
-            cmd = "claude -p 'Read AGENTS.md and update it'"
-        case CodingAgent.CODEX:
-            cmd = "codex exec 'Read AGENTS.md and update it'"
-        case _:
-            assert_never(coding_agent)
-
-    logger.info(f"Run `{cmd}` to finish agent setup.")
+    shutil.copy(Path("data/AGENTS.md"), Path("AGENTS.md"))
+    shutil.copytree("data/.agents", ".agents")
+    shutil.copytree("data/.claude", ".claude")
+    shutil.copytree("data/.codex", ".codex")
+    Path(".claude/skills").symlink_to(Path("..") / AGENT_SKILLS, target_is_directory=True)
 
 
 def remove_data_dir() -> None:
@@ -430,7 +398,7 @@ def main() -> None:
     update_dependencies()
     allow_direnv()
     git_hooks()
-    setup_coding_agent_files("{{cookiecutter.coding_agent}}")
+    setup_agent_files()
     remove_data_dir()
     verify_generated_project()
     git_initial_commit()

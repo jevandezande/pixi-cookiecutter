@@ -31,8 +31,11 @@ Structure:
 
 - `{{cookiecutter.package_name}}/` - cookiecutter template root (generated project)
   - `data/` - post-gen hook staging data, deleted from the generated project
-  - `data/AGENTS_README.md` - the `AGENTS.md` every generated project gets
-  - `data/skills/` - skills copied to `.agents/skills/`; Claude gets a `.claude/skills` symlink
+  - `data/AGENTS.md` - the `AGENTS.md` every generated project gets
+  - `data/.agents/skills/` - skills, copied to `.agents/skills/` for Codex; `.claude/skills/` is a
+    symlink to it for Claude Code, since each agent reads only its own directory
+  - `data/.claude/settings.json` - Claude Code settings and hooks, copied to `.claude/`
+  - `data/.codex/hooks.json` - Codex hooks, copied to `.codex/`; same `hooks` as Claude's
 - `hooks/` - cookiecutter hooks and tests
 - `.github/workflows/` - CI/CD configuration
 - `notes.md` - setup notes and optional tools

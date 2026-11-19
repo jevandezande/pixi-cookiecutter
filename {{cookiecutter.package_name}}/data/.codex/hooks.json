@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pixi run fmt",
+            "statusMessage": "Formatting with ruff"
+          },
+          {
+            "type": "command",
+            "command": "pixi run lint",
+            "statusMessage": "Running ruff checks"
+          }
+        ]
+      }
+    ]
+  }
+}

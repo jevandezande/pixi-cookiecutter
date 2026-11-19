@@ -40,8 +40,6 @@ Thumbs.db
 
 # Environment
 .env
-{%- if cookiecutter.coding_agent == "Claude" %}
 
 # Agents
 /.claude/settings.local.json
-{%- endif %}

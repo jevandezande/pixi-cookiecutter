@@ -10,7 +10,6 @@
     "line_length": "100",
     "license": ["MIT", "Apache-2.0", "BSD-3-Clause", "None"],
     "github_setup": ["None", "private", "internal", "public"],
-    "coding_agent": ["None", "Claude", "Codex"],
     "_copy_without_render": [".github/workflows"],
     "__prompts__": {
         "project_name": "Project name",
@@ -23,7 +22,6 @@
         "python_version": "Minimum Python version (e.g. 3.14)",
         "line_length": "Line length (80 or greater)",
         "license": "License",
-        "github_setup": "Create the GitHub repository (private, internal, public, or None)",
-        "coding_agent": "Coding agent to set up (Claude, Codex, or None)"
+        "github_setup": "Create the GitHub repository (private, internal, public, or None)"
     }
 }
