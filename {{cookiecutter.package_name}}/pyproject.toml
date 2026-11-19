@@ -100,11 +100,8 @@ convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "{{cookiecutter.package_name}}"]
-addopts = "--doctest-modules --durations=5 -m 'not regression'"
+addopts = "--doctest-modules --durations=5"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
-markers = [
-    "regression: tests to make sure bugs stay closed",
-]
 
 [tool.coverage.run]
 source = ["{{cookiecutter.package_name}}"]

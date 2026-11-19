@@ -71,7 +71,6 @@ with raises(ValueError):
 ## Parametrize Similar Tests
 
 Use `pytest.mark.parametrize` to collapse tests that differ only in inputs/outputs
-Use `param(..., marks=[mark.regression])` only for expensive cases excluded from the default run
 
 ```python
 @mark.parametrize(
@@ -88,14 +87,9 @@ def test_weights(spam_type: str, weight: float) -> None:
     assert spam.weight == approx(weight)
 ```
 
-## Regression Tests
+## Tests for Fixed Bugs
 
-Keep inexpensive tests for previously broken behavior in the default suite. Reserve
-`@mark.regression` for expensive or extended coverage that runs less regularly; the default
-command excludes this marker (`-m 'not regression'`). Run the extended suite with
-`pixi run test -m regression` or all tests with `pixi run test -m ''`.
-
-When a regression test is related to a GitHub issue, link it in the docstring:
+When a test covers a fixed GitHub issue, link it in the docstring:
 
 ```python
 def test_low_sodium_spam() -> None:
@@ -105,11 +99,6 @@ def test_low_sodium_spam() -> None:
     """
     assert Spam("low sodium").sodium_mg == approx(50)
 ```
-
-Extended coverage can include:
-
-- A wider range of code paths (e.g., all solvents, all supported methods)
-- Edge cases that are expensive to test on every CI run
 
 ## Exceptions
 
