@@ -1,52 +1,35 @@
 # AI Agent Development Guide
 
-This document provides essential guidance for AI agents working on this repository.
-It covers tooling, conventions, and workflows needed to contribute effectively.
+Cookiecutter template for pixi-based Python projects. This repository is Python (>=3.13).
 
-## How to use this document
+## Skills
 
-### When to read this file
+Read the relevant `SKILL.md` files in `.agents/skills/` before editing: `write-code`,
+`write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code`.
+`{{cookiecutter.package_name}}/data/.agents/skills/` holds the skills that ship into generated
+projects; neither agent loads them here.
 
-- First time working on this repository
-- Before making any code changes or commits
-- When unsure about code conventions or tooling
+## Layout
 
-## AI Skills
-
-Read the relevant `SKILL.md` files in `.agents/skills/` before making changes. The skills are
-`write-code`, `write-docstrings`, `write-tests`, `write-method-docs`, and `cleanup-code`; they cover
-coding conventions, documentation, tests, checks, and git workflows.
-
-## When in doubt
-
-- Check the relevant skill files
-- Run individual tools to identify issues
-- Ask user for clarification on ambiguous requirements
-
-## Repository overview
-
-Purpose: Cookiecutter template for pixi-based Python projects.
-
-Structure:
-
-- `{{cookiecutter.package_name}}/` - cookiecutter template root (generated project)
-  - `data/` - post-gen hook staging data, deleted from the generated project
-  - `data/AGENTS.md` - the `AGENTS.md` every generated project gets
+- `{{cookiecutter.package_name}}/` - template body (generated project)
+  - `data/` - post-gen hook staging data (deleted in produced template)
+  - `data/AGENTS.md` - `AGENTS.md` every generated project gets
   - `data/.agents/skills/` - skills, copied to `.agents/skills/` for Codex; `.claude/skills/` is a
     symlink to it for Claude Code, since each agent reads only its own directory
   - `data/.claude/settings.json` - Claude Code settings and hooks, copied to `.claude/`
   - `data/.codex/hooks.json` - Codex hooks, copied to `.codex/`; same `hooks` as Claude's
-- `hooks/` - cookiecutter hooks and tests
-- `.github/workflows/` - CI/CD configuration
+- `hooks/` - cookiecutter hooks and their tests
+- `.github/workflows/` - CI that generates projects and runs checks
 - `notes.md` - setup notes and optional tools
 - `template_config.yml` - example cookiecutter configuration
-
-Python Version: >=3.13
+- `pyproject.toml` - project metadata, dependencies, pixi environments and tasks, and tool
+  configuration (ruff, pytest)
+- `prek.toml` - git hook configuration
 
 ## Rendering
 
-`hooks/` is rendered, so `post_gen_project.py` embeds `{{cookiecutter.*}}` in string literals and
-in default arguments. Functions that need a cookiecutter value take it as a parameter, so tests
+`hooks/` is rendered. `post_gen_project.py` embeds `{{cookiecutter.*}}` in string literals and
+in default arguments. Functions that need a cookiecutter value take it as a parameter so tests
 can pass their own.
 
 `_copy_without_render` covers `.github/workflows`, because GitHub Actions `${{ ... }}` collides
@@ -59,26 +42,27 @@ untouched.
 
 ## Testing
 
-`test_template_renders_to_well_formed_files` renders every template file for each option
-combination and parses the TOML, JSON, and Python. It is the only local check that an edit did not
-take a Jinja tag with it, since the root `prek.toml` has to exclude the template's `pyproject.toml`
-from `check-toml`.
+Hooks: `pixi run all`, or `pixi run -e dev prek run -a --stage pre-push` (same plus whitespace
+and TOML/YAML).
+
+`test_template_renders_to_well_formed_files` in `hooks/test_post_gen_project.py` renders every
+non-verbatim template file, and the two generation hooks, for each option combination and parses
+the TOML, JSON, and Python. It is the only local check that an edit did not take a Jinja tag with
+it, since the root `prek.toml` has to exclude the template's `pyproject.toml` from `check-toml`.
 
 Full generation is not side-effect free; when `github_setup` is not `"None"`, `gh repo create` is
 run, which creates a repository on GitHub. CI generates projects with `github_setup=None` only.
 
-Key configuration files:
+## Commits and pull requests
 
-- `pyproject.toml` - Project metadata, dependencies, pixi environments and tasks, all tool configuration (ruff, pytest, coverage)
-- `prek.toml` - Prek hook configuration
-- `.editorconfig` - Editor formatting settings
-
-## Miscellaneous
-
-Agents are banned from being an author on commits or PR messages.
-Commits or PR's that contravene this directive will be rejected.
-
-Do not leave comments in the code detailing what was changed.
+- Create a branch for new work; do not develop on `master`. If another agent is working in this
+  directory, offer a worktree (`git worktree add ../<repo>-<feature>`), and remove it once merged.
+- Break work into commits that each make sense alone. Prefix messages with a conventional commit
+  type: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, or `chore:`.
+- Never credit an AI agent as an author or co-author on commits or PR messages. Commits or PRs
+  that do will be rejected.
+- Do not leave comments in the code detailing what was changed.
+- Pass PR descriptions to `gh pr create` with `--body-file`.
 
 PRs are squash-merged. Merge with
 `gh pr merge N --squash --subject "<title> (#N)" --body-file <file>` (don't use GitHub's default).

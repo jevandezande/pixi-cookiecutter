@@ -38,7 +38,6 @@ check = { depends-on = ["fmt-check", "lint-check", "mdfmt-check", "mdlint-check"
 [tool.pixi.feature.dev.pypi-dependencies]
 prek = ">=0.5.3"
 pytest = ">=9.1.1"
-pytest-cov = ">=7.1.0"
 ruff = ">=0.16.8"
 rumdl = ">=0.2.77"
 ty = ">=0.0.83"
@@ -92,27 +91,3 @@ convention = "google"
 testpaths = ["hooks"]
 addopts = "--doctest-modules"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
-
-[tool.coverage.run]
-source = ["hooks"]
-
-[tool.coverage.report]
-exclude_lines = [
-    # Have to re-enable the standard pragma
-    'pragma: no cover',
-
-    # Don't complain about missing debug-only code:
-    'def __repr__',
-    'if self\.debug',
-
-    # Don't complain if tests don't hit defensive assertion code:
-    'raise AssertionError',
-    'raise NotImplementedError',
-
-    # Don't complain if non-runnable code isn't run:
-    'if 0:',
-    'if __name__ == .__main__.:',
-
-    # Don't complain if an ellipsis isn't run (typically in an abstractmethod):
-    '^\s*\.\.\.',
-]

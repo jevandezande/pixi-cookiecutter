@@ -1,188 +1,134 @@
 ---
 name: write-tests
-description: Write or review unit tests for code in this repo. Use when writing new tests, reviewing existing tests, or adding test coverage.
+description: Writes and reviews pytest tests. Use when writing new tests, reviewing them, or adding coverage.
 argument-hint: "[module or file to test]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Bash
 ---
 
-# Writing Unit Tests
+# Writing Tests
 
-Follow these conventions when writing or modifying tests in this codebase.
+Use this skill for pytest. Code conventions are in `write-code`, and docstring conventions in
+`write-docstrings`.
 
-## Core Principles
+## Core principles
 
-- **Only write tests that provide real information.** Avoid testing trivial things like object construction or obvious attribute access. Test behavior and computations.
-- **Don't check types in tests.** Types are verified by the static type checker (`ty`). Avoid using `isinstance`, `type()`, or other type assertions in tests.
-- **Write doctests to explain function usage.** Doctests are a quick way to show how to use a function and expected output; they also are quick smoke tests.
-- Prefer concrete expected values when they are known; use relational assertions when the relationship is the behavior being tested.
-- If a test needs conditional branches, consider separate cases or parametrization so each result is clear.
-- Remove temporary tests that do not protect lasting behavior.
+- Test behavior and computed values. A test that only constructs an object or reads back an
+  attribute it set tells nobody anything.
+- Do not check types; ty does that. No `isinstance` or `type()` assertions, unless the type is
+  the behavior.
+- Prefer a concrete expected value when one is known; use a relation when the relation is the
+  behavior.
+- A test with branches is several tests. Split it or parametrize it.
+- Delete a scaffolding test once it no longer protects lasting behavior.
+- Write a doctest for how a function is called, and a test for what it must get right.
 
-## File and Function Structure
+## Structure
 
-Tests live in `tests/` within each package.
-Name files `test_<module>.py`.
-Use plain functions, never classes:
+Tests live in `tests/`, one `test_<module>.py` per module. Plain functions, never classes:
 
 ```python
-"""Tests for the Spam."""
+"""Tests for spam weights."""
 
 from pytest import approx
 
 from spam import Spam
 
-def test_classic_spam() -> None:
-    """Test classic spam values."""
-    classic_spam = Spam("classic")
-    assert classic_spam.weight == approx(3.14159265)
+CLASSIC = Spam("classic")
+
+
+def test_classic_spam_weighs_pi_ounces() -> None:
+    """Classic spam weighs pi ounces."""
+    assert CLASSIC.weight == approx(3.14159265)
 ```
 
-- Add a module-level docstring to every test file.
-- Give each test function a Google-style one-line docstring.
-- Define module-level structure constants (e.g., `water`) for reuse across multiple tests. Don't reload them inside tests.
+- Every file has a module docstring saying what it tests and, when it matters, what it leaves
+  out.
+- Every test has a docstring whose summary states the behavior checked, not the function name.
+- Name a test for the behavior: `test_classic_spam_weighs_pi_ounces`, not `test_weight`.
+- Shared inputs are module-level constants, built once and never mutated.
+- A fake that one test needs is defined in that test.
 
-## Float Comparisons
+## Imports
 
-Use default tolerance thresholds unless there is a specific, documented reason to override them.
+Import the pytest helpers a test uses by name: `from pytest import approx, mark, raises`. Keep
+`import pytest` for `@pytest.fixture` and for types such as `pytest.MonkeyPatch`.
 
-| Use case | Tool | Import |
-|---|---|---|
-| Scalars and simple lists | `approx` | `from pytest import approx` |
-| NumPy arrays (gradients, hessians) | `aae` | `from numpy.testing import assert_almost_equal as aae` |
-| Exact/near-exact array equality | `assert_allclose` | `from numpy.testing import assert_allclose` |
+## Floats
+
+Use `approx` at its default tolerance unless there is a reason not to, and give the reason in a
+named constant with its unit:
 
 ```python
-# Scalars
-assert Spam("classic").weight == approx(3.14159265)
+# Drift between two weighings on a shared scale, in ounces
+WEIGHT_TOLERANCE = 0.005
 
-# Lists / tuples
-assert Spam("jalapeno").scores == approx([1, 2, 3])
-
-# NumPy arrays
-aae(Spam("maple").distribution, [[0, 1, 2], [3, 4, 5], [6, 7, 8]])
-
-# Only override thresholds when truly necessary, with a comment explaining why
-assert Spam("bacon").weight == approx(3.14, abs=0.005)  # loose: GitHub Actions gives different results
-
-# Exceptions
-with raises(ValueError):
-    Spam("classic").process(threshold=-1)
+assert Spam("bacon").weight == approx(3.14, abs=WEIGHT_TOLERANCE)
+assert Spam("jalapeno").scores == [1, 2, 3]  # exact values need no approx
 ```
 
-## Parametrize Similar Tests
+## Parametrize
 
-Use `pytest.mark.parametrize` to collapse tests that differ only in inputs/outputs
+Collapse tests that differ only in input and expected output:
 
 ```python
 @mark.parametrize(
     ("spam_type", "weight"),
-    [
-        ("classic", 3.14159265),
-        ("maple", 4.1),
-        ("low sodium", 2.9),
-    ],
+    [("classic", 3.14159265), ("maple", 4.1), ("low sodium", 2.9)],
 )
-def test_weights(spam_type: str, weight: float) -> None:
-    """Test weights for multiple spam varieties."""
-    spam = Spam(spam_type)
-    assert spam.weight == approx(weight)
+def test_each_spam_type_has_its_own_weight(spam_type: str, weight: float) -> None:
+    """Each spam type weighs what its label says."""
+    assert Spam(spam_type).weight == approx(weight)
 ```
 
-## Tests for Fixed Bugs
+## Fixtures
 
-When a test covers a fixed GitHub issue, link it in the docstring:
-
-```python
-def test_low_sodium_spam() -> None:
-    """Test the sodium content of low-sodium spam.
-
-    Regression: https://example.com/flying_circus/spam/issues/1
-    """
-    assert Spam("low sodium").sodium_mg == approx(50)
-```
+A module-level constant serves most setup. Reach for `@pytest.fixture` when setup is expensive
+and should run once (`scope="module"`), needs teardown, or needs `tmp_path` or `monkeypatch`.
+Keep a fixture in the file that uses it; a `conftest.py` is for one shared across files.
 
 ## Exceptions
 
 Assert the most specific exception class, not a base such as `Exception`, so the test also pins
-which error the caller sees. Add `match=` only for the part of the message that is contract, such
-as the name of the offending value, never the full wording.
+which error the caller sees. Add `match=` only for the part of the message that is contract,
+such as the name of the offending value, never the full wording.
 
 ```python
 with raises(SpamTypeError, match="kale"):
     Spam("kale")
 ```
 
-## Tests That Need What a Machine May Lack
+## Tests that need what a machine may lack
 
-Never check for a requirement and `return`: pytest counts that as a pass, so a machine that cannot
-run the test reports it green. Skip visibly instead, with a reason a reader can act on:
+Never check for a requirement and `return`: pytest counts that as a pass. Skip visibly instead:
 
-- a platform or a program: `@mark.skipif(..., reason="needs <what>")`
+- a platform or a program: `@mark.skipif(..., reason="...")`, with a reason a reader can act on
 - an optional package: `importorskip("package")`
 - a whole module: `skip("needs <what>", allow_module_level=True)`
 
-## Fixtures
+## Docstrings and comments
 
-Use pytest fixtures for any setup that is repeated across multiple tests. Place fixtures in `conftest.py`:
-
-- **Within a package:** `tests/conftest.py`
-- **Shared across packages:** not currently applicable; each package has its own `conftest.py`
-
-## Documentation
-
-Docstrings should concisely state what is being tested in the initial sentence.
-Additional information about why should be placed in the follow-up paragraph.
-If available, include the issue number.
-Do not explain code in tests, only what is being tested
-
-Comments should be used sparingly and only when targetted information is needed
-(e.g. the value a test would be if something weren't working)
-
-### Example
+The summary states what is tested. Why goes in the following paragraph, with the issue or PR
+number if there is one. Comments are rare: the value a broken build used to give, or why a
+tolerance is loose, not what the next line does.
 
 ```python
-def test_sum_on_negatives() -> None:
-    """Sums of negative numbers should be negative.
+def test_low_sodium_spam_has_a_quarter_of_the_sodium() -> None:
+    """Low-sodium spam has a quarter of classic spam's sodium.
 
-    #153 found that sums of negative numbers were positive.
+    #153 found low-sodium spam reporting classic spam's sodium.
     """
-    # previously 5
-    assert sum(-2, -3) == -5
-    assert sum(-1.3, -4.5) == -5.8
+    assert Spam("low sodium").sodium_mg == approx(Spam("classic").sodium_mg / 4)
 ```
 
-### Incorrect example (do not do this!)
+## What not to test
 
-```python
-def test_sum() -> None:  #  ❌ not descriptive enough
-    """Check negative sums.  # ❌ not descriptive enough
-
-    Fixes #153  #  ❌ does not describe the problem
-    """
-    # The sum function adds two numbers  #  ❌ don't add code description as comments
-    assert sum(-2, -3) == -5
-    assert sum(-1.3, -4.5) == -5.8
-```
-
-## Imports
-
-Prefer importing selectively from pytest for readability
-
-```python
-from pytest import approx, mark, raises
-```
-
-Standard alias for numpy array assertions:
-
-```python
-from numpy.testing import assert_almost_equal as aae
-```
-
-## What NOT to Test
-
-- Type correctness (use `ty check` instead)
-- That a function returns something (trivial)
-- Exact exception message text (fragile)
-- Behavior of external libraries
-- Implementation details that should be free to change
-
-Focus on observable behavior: computed values, raised exceptions for invalid inputs, and correct transformations.
+- types, which ty checks
+- that a function returns something
+- the full text of an error message
+- the behavior of pytest or another library
+- implementation details that should be free to change

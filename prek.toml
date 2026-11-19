@@ -6,11 +6,11 @@ default_stages = ["pre-commit", "pre-push"]
 [[repos]]
 repo = "builtin"
 hooks = [
-  { id = "check-toml", exclude = '\{\{cookiecutter\.package_name\}\}/pyproject\.toml' },
-  { id = "check-yaml" },
-  { id = "check-merge-conflict" },
-  { id = "end-of-file-fixer" },
-  { id = "trailing-whitespace" },
+    { id = "trailing-whitespace", priority = 0 },
+    { id = "end-of-file-fixer", priority = 0 },
+    { id = "check-toml", exclude = '\{\{cookiecutter\.package_name\}\}/pyproject\.toml', priority = 0 },
+    { id = "check-yaml", priority = 0 },
+    { id = "check-merge-conflict", priority = 0 },
 ]
 
 [[repos]]
@@ -23,38 +23,43 @@ language = "system"
 entry = "pixi lock --check"
 files = '^(pyproject\.toml|pixi\.lock)$'
 pass_filenames = false
+priority = 5
 
 [[repos.hooks]]
 id = "rumdl-fmt"
-name = "rumdl-fmt"
+name = "rumdl fmt"
 language = "system"
 entry = "pixi run mdfmt"
 types = ["markdown"]
 pass_filenames = false
+priority = 10
 
 [[repos.hooks]]
 id = "rumdl-check"
-name = "rumdl-check"
+name = "rumdl check"
 language = "system"
 entry = "pixi run mdlint"
 types = ["markdown"]
 pass_filenames = false
+priority = 11
 
 [[repos.hooks]]
 id = "ruff-format"
-name = "ruff-format"
+name = "ruff format"
 language = "system"
 entry = "pixi run fmt"
 types_or = ["python", "pyi"]
 pass_filenames = false
+priority = 30
 
 [[repos.hooks]]
 id = "ruff-check"
-name = "ruff-check"
+name = "ruff check"
 language = "system"
 entry = "pixi run lint"
 types_or = ["python", "pyi"]
 pass_filenames = false
+priority = 31
 
 [[repos.hooks]]
 id = "ty"
@@ -63,6 +68,7 @@ language = "system"
 entry = "pixi run types"
 types_or = ["python", "pyi"]
 pass_filenames = false
+priority = 32
 
 [[repos.hooks]]
 id = "pytest"
@@ -72,3 +78,4 @@ entry = "pixi run test"
 always_run = true
 pass_filenames = false
 stages = ["pre-push"]
+priority = 41

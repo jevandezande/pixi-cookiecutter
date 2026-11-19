@@ -1,4 +1,4 @@
-"""Hooks to run before generating the project."""
+"""Hooks to run before generating project."""
 
 import keyword
 import logging
@@ -16,7 +16,7 @@ GITHUB_USERNAME_REGEX = r"[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}"
 
 
 def main() -> None:
-    """Run the hooks."""
+    """Check every option, failing generation on first one that cannot work."""
     check_module_name("{{cookiecutter.package_name}}")
     check_line_length("{{cookiecutter.line_length}}")
     check_python_version("{{cookiecutter.python_version}}")
@@ -55,7 +55,7 @@ def check_line_length(line_length: str) -> None:
 
 
 def check_python_version(python_version: str) -> None:
-    """Check that the python version is a supported `major.minor` version.
+    """Check that the python version is a `major.minor` version of Python 3.
 
     A minor version below the supported minimum logs a warning and returns.
 

@@ -3,6 +3,7 @@
 import ast
 import json
 import logging
+import re
 import subprocess
 import tomllib
 from pathlib import Path
@@ -10,9 +11,11 @@ from types import SimpleNamespace
 
 import pytest
 from cookiecutter.environment import StrictEnvironment
-from pytest import mark
+from pytest import mark, raises
 
 from hooks import post_gen_project
+
+TEMPLATE_ROOT = Path("{{cookiecutter.package_name}}")
 
 
 @pytest.fixture
@@ -112,7 +115,7 @@ def test_claude_and_codex_run_the_same_edit_hooks() -> None:
     assert claude["hooks"] == codex["hooks"]
 
 
-@pytest.mark.parametrize(
+@mark.parametrize(
     ("protocol", "expected"),
     [
         ("git", "git@github.com:user/repo.git"),
@@ -124,7 +127,7 @@ def test_git_add_remote_formats_url(
     expected: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Format remote URL based on protocol."""
+    """Rewrite HTTPS URL into `git@` form, or leave it alone for `https`."""
     calls: list[str] = []
 
     def fake_call(cmd: str, **_: object) -> None:
@@ -135,31 +138,80 @@ def test_git_add_remote_formats_url(
     assert calls == [f"git remote add origin {expected}"]
 
 
+@mark.parametrize(
+    ("github_setup", "expected"), [("None", False), ("private", True), ("public", True)]
+)
 def test_check_prerequisites_requires_gh_only_for_github_setup(
-    monkeypatch: pytest.MonkeyPatch,
+    github_setup: str, expected: bool, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Probe the GitHub CLI only when a repository will be created."""
-    checked: list[str] = []
-    monkeypatch.setattr(
-        post_gen_project, "check_program", lambda program, _: checked.append(program)
-    )
-
-    post_gen_project.check_prerequisites("None")
-    assert not any("gh" in program for program in checked)
-
-    checked.clear()
-    post_gen_project.check_prerequisites("private")
-    assert "gh --version" in checked
-
-
-def test_github_setup_qualifies_the_repo_with_the_owner(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Create the repository under the given owner rather than the authenticated user."""
+    """Check GitHub CLI up front, rather than after the project is built."""
     calls: list[str] = []
     monkeypatch.setattr(post_gen_project, "call", lambda cmd, **_: calls.append(cmd))
 
-    post_gen_project.github_setup("private", owner="octocat", name="spam")
+    post_gen_project.check_prerequisites(github_setup)
 
-    assert calls[0] == "gh repo create octocat/spam --private --remote origin --source . --push"
+    assert ("gh --version" in calls) is expected
+
+
+def test_check_program_reports_the_install_command(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Turn a missing prerequisite into an error that says how to install it."""
+
+    def missing(*_: object, **__: object) -> None:
+        raise FileNotFoundError
+
+    monkeypatch.setattr(post_gen_project, "call", missing)
+
+    with raises(OSError, match=re.escape("install with `https://cli.github.com/`")):
+        post_gen_project.check_program("gh --version", "https://cli.github.com/")
+
+
+def test_check_program_reports_the_exit_code(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tell a broken install apart from a missing one, and say what it exited with."""
+
+    def broken(cmd: str, **_: object) -> None:
+        raise subprocess.CalledProcessError(127, cmd)
+
+    monkeypatch.setattr(post_gen_project, "call", broken)
+
+    with raises(RuntimeError, match="`gh --version` exited with 127"):
+        post_gen_project.check_program("gh --version", "https://cli.github.com/")
+
+
+@mark.parametrize(
+    ("privacy", "url", "expected"),
+    [
+        ("private", "https://github.com/octocat/spam", "github_setup private"),
+        (
+            "None",
+            "https://github.com/octocat/spam",
+            "git remote add origin git@github.com:octocat/spam",
+        ),
+        ("None", "https://github.com//spam", None),
+    ],
+)
+def test_setup_remote_creates_or_adds_or_skips(
+    privacy: str, url: str, expected: str | None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Create repository when a privacy was chosen, else add URL as remote if it is complete."""
+    calls: list[str] = []
+    monkeypatch.setattr(post_gen_project, "call", lambda cmd, **_: calls.append(cmd))
+    monkeypatch.setattr(
+        post_gen_project, "github_setup", lambda privacy, _: calls.append(f"github_setup {privacy}")
+    )
+
+    post_gen_project.setup_remote("origin", privacy, url)
+
+    assert calls == ([expected] if expected else [])
+
+
+def test_github_setup_qualifies_the_repo_with_the_owner(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Create `owner/name`, so repo matches URLs the project embeds."""
+    calls: list[str] = []
+    monkeypatch.setattr(post_gen_project, "call", lambda cmd, **_: calls.append(cmd))
+
+    post_gen_project.github_setup("internal", owner="acme", name="spam")
+
+    assert calls[0] == "gh repo create acme/spam --internal --remote origin --source . --push"
 
 
 def test_github_setup_stops_after_a_failing_gh(
@@ -181,10 +233,15 @@ def test_github_setup_stops_after_a_failing_gh(
     assert "Retry with" in caplog.text
 
 
-def test_github_setup_rejects_unknown_privacy() -> None:
-    """Reject a privacy level the GitHub CLI has no flag for."""
-    with pytest.raises(ValueError, match="secret"):
-        post_gen_project.github_setup("secret")
+def test_github_setup_rejects_unknown_privacy(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Raise before touching gh, so a typo cannot create a repo with the wrong visibility."""
+    calls: list[str] = []
+    monkeypatch.setattr(post_gen_project, "call", lambda cmd, **_: calls.append(cmd))
+
+    with raises(ValueError, match="privacy='pubic'"):
+        post_gen_project.github_setup("pubic")
+
+    assert calls == []
 
 
 def test_read_write_rejects_a_missing_placeholder(
@@ -194,7 +251,7 @@ def test_read_write_rejects_a_missing_placeholder(
     (tmp_path / "pyproject.toml").write_text("version = '0.0.1'\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
 
-    with pytest.raises(ValueError, match="renamed"):
+    with raises(ValueError, match="renamed"):
         post_gen_project.read_write("pyproject.toml", "{renamed}", "1")
 
 
@@ -237,34 +294,39 @@ def test_update_dependencies_collapses_empty_specs(
 def test_verify_generated_project_warns_rather_than_raising(
     monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """Report failing hooks without raising, which would delete the generated project."""
-    monkeypatch.setattr(post_gen_project, "call", lambda *_, **__: SimpleNamespace(returncode=1))
+    """Report failing hooks without aborting; cookiecutter deletes project on a raise.
+
+    Pre-push stage runs, since test suites are pre-push hooks that `prek run` alone skips.
+    """
+    calls: list[str] = []
+
+    def fake_call(cmd: str, **_: object) -> SimpleNamespace:
+        calls.append(cmd)
+        return SimpleNamespace(returncode=int("prek" in cmd))
+
+    monkeypatch.setattr(post_gen_project, "call", fake_call)
 
     with caplog.at_level(logging.WARNING):
         post_gen_project.verify_generated_project()
 
+    # Staged first: `prek run -a` sees only what git knows about
+    assert calls == ["git add .", "pixi run -e dev prek run -a --stage pre-push"]
     assert "fails its own hooks" in caplog.text
 
 
-def test_notes_link_the_given_repository(caplog: pytest.LogCaptureFixture) -> None:
-    """Point the token links at the repository that was passed in."""
-    with caplog.at_level(logging.INFO):
-        post_gen_project.notes("octocat", "spam")
+def test_verify_generated_project_is_quiet_when_the_hooks_pass(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Say nothing when generated project already satisfies its own hooks."""
+    monkeypatch.setattr(post_gen_project, "call", lambda *_, **__: SimpleNamespace(returncode=0))
 
-    assert "https://app.codecov.io/gh/octocat/spam/settings" in caplog.text
-    assert "https://github.com/octocat/spam/settings/secrets/actions" in caplog.text
-
-
-def test_notes_skipped_without_a_github_username(caplog: pytest.LogCaptureFixture) -> None:
-    """Print nothing when there is no GitHub username."""
-    with caplog.at_level(logging.INFO):
-        post_gen_project.notes("", "spam")
+    post_gen_project.verify_generated_project()
 
     assert not caplog.text
 
 
 def test_git_initial_commit_skips_the_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Commit with --no-verify, since the hooks already ran over the whole tree."""
+    """Commit with --no-verify: hooks already ran, where failing them is not fatal."""
     calls: list[str] = []
     monkeypatch.setattr(post_gen_project, "call", lambda cmd, **_: calls.append(cmd))
 
@@ -274,76 +336,102 @@ def test_git_initial_commit_skips_the_hooks(monkeypatch: pytest.MonkeyPatch) -> 
 
 
 def test_every_license_choice_ships_a_file_set_license_can_format() -> None:
-    """Match the license choices against the files `set_license` copies from."""
+    """Ship a file per license choice, each carrying the placeholders `set_license` fills."""
     choices = json.loads(Path("cookiecutter.json").read_text(encoding="utf-8"))["license"]
-    licenses = Path("{{cookiecutter.package_name}}/data/licenses")
+    licenses = TEMPLATE_ROOT / "data" / "licenses"
 
-    for choice in choices:
-        if choice == "None":
-            continue
+    expected = {choice for choice in choices if choice != "None"}
 
-        path = licenses / choice
-        assert path.exists(), f"{choice} has no file in {licenses}"
-        assert "{author_name}" in path.read_text(encoding="utf-8")
+    assert expected == {path.name for path in licenses.iterdir()}
+
+    for path in licenses.iterdir():
+        contents = path.read_text(encoding="utf-8")
+        assert "{year}" in contents, path.name
+        assert "{author_name}" in contents, path.name
 
 
 def test_set_license_rejects_unknown(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Reject a license with no file, rather than guessing at the case."""
-    (tmp_path / "data" / "licenses").mkdir(parents=True)
+    """Raise on a license with no file to copy, listing what is available."""
+    licenses_path = tmp_path / "data" / "licenses"
+    licenses_path.mkdir(parents=True)
+    (licenses_path / "MIT").write_text("MIT text", encoding="utf-8")
+
     monkeypatch.chdir(tmp_path)
 
-    with pytest.raises(ValueError, match="not available"):
-        post_gen_project.set_license("BSD-3-clause")
+    with raises(ValueError, match="WTFPL"):
+        post_gen_project.set_license("WTFPL")
+
+    assert not (tmp_path / "LICENSE").exists()
 
 
-TEMPLATE_ROOT = Path("{{cookiecutter.package_name}}")
+def cookiecutter_context(**overrides: str) -> dict[str, str]:
+    """Build context cookiecutter would render with: `cookiecutter.json` defaults, overridden.
+
+    Args:
+        overrides: option values to replace defaults with
+
+    Returns:
+        `cookiecutter` namespace, with derived names resolved
+    """
+    raw = json.loads(Path("cookiecutter.json").read_text(encoding="utf-8"))
+    context = {
+        key: value[0] if isinstance(value, list) else value
+        for key, value in raw.items()
+        if not key.startswith("_")
+    } | overrides
+    package_name = context["project_name"].lower().replace(" ", "_").replace("-", "_")
+    context["package_name"] = package_name
+    context["project_url"] = f"https://github.com/{context['github_username']}/{package_name}"
+    return context
 
 
 def render_template(context: dict[str, str]) -> dict[Path, str]:
-    """Render every template file cookiecutter would render for a context.
+    """Render every file cookiecutter renders for a context, hooks included.
 
     Args:
         context: cookiecutter context to render with
 
     Returns:
-        Mapping of path relative to the template root to rendered contents
+        Mapping of path relative to repo root to rendered contents
     """
     environment = StrictEnvironment(context={"cookiecutter": context}, keep_trailing_newline=True)
     copied_verbatim = json.loads(Path("cookiecutter.json").read_text(encoding="utf-8"))[
         "_copy_without_render"
     ]
 
-    rendered = {}
-    for path in sorted(TEMPLATE_ROOT.rglob("*")):
-        relative = path.relative_to(TEMPLATE_ROOT)
-        if path.is_dir() or any(relative.is_relative_to(glob) for glob in copied_verbatim):
-            continue
+    paths = [
+        path
+        for path in TEMPLATE_ROOT.rglob("*")
+        if path.is_file()
+        and "__pycache__" not in path.parts
+        and not any(
+            path.relative_to(TEMPLATE_ROOT).full_match(glob)
+            or path.relative_to(TEMPLATE_ROOT).is_relative_to(glob)
+            for glob in copied_verbatim
+        )
+    ]
+    paths += [Path("hooks") / name for name in ("pre_gen_project.py", "post_gen_project.py")]
 
-        source = path.read_text(encoding="utf-8")
-        rendered[relative] = environment.from_string(source).render(cookiecutter=context)
-
-    return rendered
+    return {
+        path: environment.from_string(path.read_text(encoding="utf-8")).render(cookiecutter=context)
+        for path in sorted(paths)
+    }
 
 
 @mark.parametrize("license_name", ["MIT", "Apache-2.0", "BSD-3-Clause", "None"])
 @mark.parametrize("author_name", ["Jane Doe", ""])
 def test_template_renders_to_well_formed_files(license_name: str, author_name: str) -> None:
-    """Render every option combination, then parse the TOML, JSON, and Python it produces.
+    """Render every file for option combination and parse what has a parser.
 
-    This is the only check that a comment or a conditional edit did not take a Jinja tag with
-    it, since the root `prek.toml` has to exclude the template's `pyproject.toml` from
-    `check-toml`.
+    Root `prek.toml` has to exclude Jinja-bearing TOML from `check-toml`; this is the only check
+    short of CI that a comment edit did not take a Jinja tag with it.
     """
-    context = {
-        "project_name": "Spam Deluxe",
-        "package_name": "spam_deluxe",
-        "author_name": author_name,
-        "github_username": "octocat",
-        "project_url": "https://github.com/octocat/spam_deluxe",
-        "python_version": "3.14",
-        "line_length": "100",
-        "license": license_name,
-    }
+    context = cookiecutter_context(
+        project_name="Spam Deluxe",
+        author_name=author_name,
+        github_username="octocat",
+        license=license_name,
+    )
 
     for relative, contents in render_template(context).items():
         assert "{{" not in contents, f"unrendered Jinja left in {relative}"

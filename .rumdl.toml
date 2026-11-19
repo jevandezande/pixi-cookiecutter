@@ -3,6 +3,7 @@
 disable = [
     "MD013",  # line length
     "MD033",  # no inline HTML
+    "MD075",  # pipe rows without table header (false positives from LaTeX math with |)
 ]
 
 exclude = [

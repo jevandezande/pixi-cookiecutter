@@ -6,13 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pixi run fmt",
-            "statusMessage": "Formatting with ruff"
-          },
-          {
-            "type": "command",
-            "command": "pixi run lint",
-            "statusMessage": "Running ruff checks"
+            "command": "pixi run fmt && pixi run lint",
+            "statusMessage": "Formatting and linting with ruff"
           }
         ]
       }

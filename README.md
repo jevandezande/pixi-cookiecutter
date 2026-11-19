@@ -6,7 +6,6 @@
 [![Markdown style: rumdl](https://img.shields.io/badge/md%20style-rumdl-000000.svg)](https://rumdl.dev)
 [![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jevandezande/pixi-cookiecutter/test.yml?branch=master&logo=github-actions)](https://github.com/jevandezande/pixi-cookiecutter/actions)
-[![Codecov](https://img.shields.io/codecov/c/github/jevandezande/pixi-cookiecutter/master)](https://app.codecov.io/github/jevandezande/pixi-cookiecutter/branch/master)
 
 [Cookiecutter](https://github.com/cookiecutter/cookiecutter) for setting up [pixi](https://pixi.sh) projects with all the necessary features for modern python development.
 
@@ -16,11 +15,10 @@
 - Environment loading with [direnv](https://direnv.net)
 - Formatting and linting of Python with [ruff](https://github.com/astral-sh/ruff)
 - Formatting and linting of Markdown with [rumdl](https://rumdl.dev)
-- Static typing with [ty](https://github.com/astral-sh/ty)
+- Type checking with [ty](https://github.com/astral-sh/ty)
 - Testing with [pytest](https://docs.pytest.org/en/latest)
 - Git hooks that run all the above with [prek](https://prek.j178.dev)
 - Continuous integration with [GitHub Actions](https://github.com/features/actions), and a pull request template
-- Code coverage with [Codecov](https://docs.codecov.com/docs)
 
 ## Setup
 
@@ -35,7 +33,7 @@ pixi global install direnv
 curl -sS https://webi.sh/gh | sh
 ```
 
-See [notes.md](notes.md#project-tools) for optional dependencies and [alternative installation methods](notes.md#alternative-installation-methods).
+[notes.md](notes.md#project-tools) covers optional tools and [alternative installation methods](notes.md#alternative-installation-methods).
 
 ```sh
 # Use cookiecutter to create a project from this template
@@ -74,9 +72,11 @@ Cookiecutter deletes the output directory when a hook fails. Keep it with
 
 ## Recommendations
 
-- Make a custom config file (see [template_config.yml](template_config.yml)).
-- Install [act](https://github.com/nektos/act) to run GitHub Actions locally.
+- Make a custom config file (see [template_config.yml](template_config.yml))
+- Install [act](https://github.com/nektos/act) to run GitHub Actions locally
 
-Read [notes](notes.md) for more tips.
+[notes.md](notes.md) has more tips.
 
 If you don't need packages from conda, check out `uv` and the [uv-cookiecutter](https://github.com/jevandezande/uv-cookiecutter).
+
+For Rust projects, with optional Python interop, see the [rust-cookiecutter](https://github.com/jevandezande/rust-cookiecutter).

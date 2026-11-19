@@ -1,97 +1,71 @@
 ---
 name: write-code
-description: Write or review code in this repo. Use when writing new code, reviewing existing code, or editing code.
-argument-hint: "[source code]"
+description: Writes and reviews Python. Use when writing new code, reviewing it, or editing it.
+argument-hint: "[directory or file]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Bash
 ---
 
 # Writing Code
 
-Use this skill when writing, reviewing, or editing code.
-
-## Purpose
-
-The goal of this document is to provide guidance when coding in this repository. All code should be pythonic and easy to read.
+Use this skill when writing or editing code. Use `write-docstrings` when documenting it,
+`write-tests` when adding tests, and `cleanup-code` for a final review.
 
 Python version: see `requires-python` in `pyproject.toml`
 
 ## Before every commit
 
-- Ensure all code has type annotations
-- Add Google-style docstrings (NO types, NO leading articles)
-- Run checks: `prek run -a --stage pre-push` (tests run at pre-push, not pre-commit)
-- Prek hooks will run automatically and must pass
+- Annotate every function and method completely
+- Write Google-style docstrings; see `write-docstrings`
+- Run `prek run -a --stage pre-push`; tests run at pre-push, not pre-commit. Hooks must pass
 
-## Code conventions
+## Type annotations
 
-### Docstrings
+- Annotate every function and method completely, return type included (`-> None` too).
+- Built-in generics: `list[str]`, `dict[str, float]`, `tuple[int, ...]`; never `typing.List`.
+- Never a bare `dict` or `list`; give the element types. Use `Any` only when nothing narrower
+  fits.
+- `TypedDict` over `dict[str, Any]` when the keys are known, as for a JSON record.
+- `X | None`, not `Optional[X]`. `Self` for methods returning their own class.
+- Abstract parameter types from `collections.abc` (`Sequence`, `Mapping`, `Iterable`) when the
+  function only reads them; concrete return types.
+- No `from __future__ import annotations`; quote a forward reference instead.
+- Avoid `cast`. If ty cannot see a type, fix the annotation that hides it.
 
-See skill `write-docstrings`
+## Style
 
-### Comments
+- ruff formats: 4-space indentation, line length from `line-length` in `pyproject.toml`.
+- f-strings for formatting; `pathlib.Path` for files, never `os.path`.
+- Comprehensions over accumulate-in-a-loop when they read as clearly.
+- `@dataclass(frozen=True, slots=True)` for records.
+- `zip(..., strict=True)` and `itertools.batched(..., strict=True)`.
+- Every `match` ends with `case _:`.
+- Write `1`, not `1.0`, where an integer literal means the same thing.
+- Names: `snake_case` for functions, variables, and modules; `PascalCase` for classes;
+  `UPPER_SNAKE_CASE` for constants; `_leading_underscore` for private attributes and methods.
+- Constants are `UPPER_SNAKE_CASE` at module level, with a `#` comment giving their unit when
+  they have one.
+- Comments say why, sparingly. Never narrate a change or restate the code.
+- Never name a module after one in the standard library, such as `types.py`; it shadows it.
 
-- Use comments sparingly to clarify non-obvious code or constraints.
-- Do not use comments to narrate changes or restate what the code already says.
+## Errors
 
-### Type annotations
+- Raise the most specific built-in exception that fits, or a domain exception derived from one:
+  `ValueError` for invalid input, `RuntimeError` for a failed operation. Never a bare
+  `Exception`.
+- No bare `except:`, and no `except Exception:` that swallows the error.
 
-- All functions must have complete type annotations
-- Import types from `typing` only when necessary (prefer built-ins)
-- Use modern syntax: `list[str]`, `dict[str, int]` (not `List[str]`, `Dict[str, int]`)
-- Do not use a bare `dict`, always annotate the type of the `dict` (e.g. `dict[str, float]`)
-- Use `Any` in `dict` annotations only if absolutely necessary
-- Prefer `TypedDict` over `dict[str, Any]` when keys and value types are known
-- Prefer precise types over `Any` or `object` when the type is known
-- Use `|` for union types: `str | None`
-- Use `Self` for methods that return an instance of their class when appropriate
-- Avoid `from __future__ import annotations`
-- Use modern numpy type hints where useful, and use TypeAlias to make code more readable, e.g.
-  - `type Matrix[T: np.generic] = np.ndarray[tuple[int, int], np.dtype[T]]`
+## Imports
 
-### Code formatting
-
-Via ruff
-
-- Line length: 100
-- Indentation: 4 spaces (no tabs except Makefiles)
-
-### Naming conventions
-
-- Functions/methods: snake_case
-- Variables: snake_case
-- Constants: UPPER_SNAKE_CASE
-- Classes: PascalCase
-- Modules: snake_case
-- Private attributes/methods: _leading_underscore
-
-### Imports
-
-- Absolute imports preferred
-- Group imports: standard library, third-party, local
-- No wildcard imports (`from module import *`) except in `__init__.py`
-- Import sorting handled by ruff (isort)
-- Do not use import statements within a function unless absolutely necessary
-
-### Error handling
-
-- Prefer specific exceptions; define custom exceptions for domain errors
-  (e.g. `SpamTypeError(ValueError)`, `SpamEatingError(RuntimeError)`)
-- Avoid bare `except:` clauses
-
-### General style
-
-- Use f-strings for string formatting
-- Prefer list/dict comprehensions over loops when appropriate
-- Use `pathlib.Path` for file operations instead of `os.path`
-- Use dataclasses and prefer the settings `slots=True` and `frozen=True`
-- Don't use `.0` to indicate floats
-- Prefer `strict=True` in `zip` and `itertools.batched`
-- Use a guard case in all `match`/`case` statements (i.e. `case _:`)
-- Don't use the filename `types.py` as it conflicts with a builtin library
-- Avoid using `cast` to achieve the correct type
+- Absolute imports, grouped and sorted by ruff. No wildcard imports.
+- Imports go at the top of the module, not inside a function.
+- Do not add a dependency without asking.
 
 ## Essential commands
-
-Code quality tools (ruff, ty, pytest) are configured per-package in `pyproject.toml`.
 
 ```bash
 # Setup
@@ -122,61 +96,23 @@ Run `direnv allow .` if you see permission errors.
 
 ## Testing
 
-- Use pytest; tests live in `tests/`; doctests are auto-discovered in source
-- Use standard pytest format (e.g. don't use classes to hold tests)
-- For float comparisons, use `approx` or `assert_almost_equal` (imported as `aae`), prefer default thresholds
-
-See the skill `write-tests` for more detail, but only if actively writing tests
+Use pytest; tests live in `tests/`; doctests are auto-discovered in source. See `write-tests`
+when writing tests.
 
 ## CI/CD
 
-CI runs the non-mutating `pixi run fmt-check`, `lint-check`, `mdfmt-check`, `mdlint-check`, `types`,
-and `test` tasks via GitHub Actions. Run `pixi run check` to reproduce the whole set locally.
+CI runs the non-mutating `pixi run fmt-check`, `lint-check`, `mdfmt-check`, `mdlint-check`,
+`types`, and `test` tasks via GitHub Actions. Run `pixi run check` to reproduce the whole set
+locally.
 
-## Git development guidelines
+## Troubleshooting
 
-When working on a new feature, bugfix, etc.
-If Claude is already working in this directory, offer to start a new worktree.
-Create a new branch for all new work (avoid developing on master)
+- Formatting and lint failures: usually auto-fixed by ruff; re-stage and retry.
+- Type failures: fix the annotation or the mismatch; verify with `pixi run types`.
+- Test failures: fix the test or the code; `pixi run test -v` for detail,
+  `pixi run test tests/test_file.py::test_name` for one test.
 
-e.g.
-`git worktree add ../{package_name}-{feature_name} && cd ../{package_name}-{feature_name}` # optional
-`git switch -c feat/jalapeno_spam`
-
-Break up work into manageable commits, keeping track of what changed in each commit.
-When the work is complete, create a descriptive PR. Follow the project's PR template when present
-and omit empty sections. Write the description to a file and pass it with `--body-file`.
-
-e.g.
-`gh pr create --title "Add Jalapeno Spam" --body-file <file>`
-
-If a worktree was created, offer to clean it up.
-
-### Commit guidelines
-
-Format: conventional commits recommended
-
-- `feat:` - new features
-- `fix:` - bug fixes
-- `docs:` - documentation changes
-- `test:` - test changes
-- `refactor:` - code refactoring
-- `chore:` - maintenance tasks
-
-Never credit an AI agent as an author or co-author on commits or PR messages.
-
-#### Example
-
-```bash
-git commit -m "feat: add Jalapeno Spam
-
-- Adds Jalapeno Spam
-- Tests that it is spicy"
-```
-
-### Documentation
-
-Use skill `write-docstrings`
+Never add a `# noqa`, a `# ty: ignore`, or an ignore in `pyproject.toml` without asking.
 
 ## Additional resources
 
@@ -186,35 +122,3 @@ Use skill `write-docstrings`
 - [pytest](https://docs.pytest.org)
 - [prek](https://prek.j178.dev)
 - [Google docstring style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
-
-## Troubleshooting
-
-### Prek hook failures
-
-Formatting issues:
-
-- Usually auto-fixed by ruff
-- Re-stage files: `git add .`
-- Try committing again
-
-Lint issues:
-
-- Read error message for specific rule
-- Fix; if `# noqa: <rule>` if absolutely necessary, ask before adding
-
-Type issues:
-
-- Add missing type annotations
-- Fix type mismatches
-- Use `pixi run types` to verify locally
-
-Test failures:
-
-- Fix failing tests or code
-- Run `pixi run test -v` for detailed output
-- Run specific test: `pixi run test tests/test_file.py::test_name`
-
-## Miscellaneous
-
-Do not add new packages without explicitly asking first.
-Never add ignores to the pyproject.toml formatting, linting, or type checking without explicitly asking

@@ -1,4 +1,4 @@
-"""Hooks for setting up project once generated."""
+"""Hooks to run after generating project."""
 
 import logging
 import shutil
@@ -19,14 +19,14 @@ AGENT_SKILLS = Path(".agents/skills")
 
 
 def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
-    """Call shell commands.
+    """Run a shell command.
 
-    The command is split on whitespace, so arguments containing spaces are not supported.
+    `cmd` is split on whitespace; arguments containing spaces are not supported.
 
     Args:
-        cmd: command to call
-        check: whether to raise an exception if the command fails
-        kwargs: keyword arguments to pass to subprocess.run
+        cmd: command to run
+        check: whether to raise when command exits non-zero
+        kwargs: keyword arguments to pass to `subprocess.run`
 
     Returns:
         Completed process
@@ -44,7 +44,7 @@ def read_write(file_name: str, old: str, new: str) -> None:
         new: replacement substring
 
     Raises:
-        ValueError: `old` is not in the file, so a renamed placeholder cannot pass silently
+        ValueError: `old` not in file, so a renamed placeholder cannot pass silently
     """
     path = Path(file_name)
     contents = path.read_text(encoding="utf-8")
@@ -95,13 +95,13 @@ def set_license(license_name: str) -> None:
 
 
 def git_init(default_branch: str = DEFAULT_BRANCH) -> None:
-    """Initialize a git repository.
+    """Initialize git repository.
 
-    The branch is set explicitly so it matches the branch referenced by the generated
-    workflow, README badges, and upstream configuration.
+    Branch is set explicitly, to match branch generated workflows, README badges, and upstream
+    configuration reference.
 
     Args:
-        default_branch: name of the initial branch
+        default_branch: name of initial branch
     """
     call(f"git init -b {default_branch}")
 
@@ -185,33 +185,27 @@ def check_program(program: str, install_str: str, **run_kwargs: Any) -> None:
     """Check that a program is installed.
 
     Args:
-        program: name of the program to check
-        install_str: install instructions included when the program is missing
+        program: command that exits zero when program is installed, e.g. `git --version`
+        install_str: where to get program from, for error message
         run_kwargs: keyword arguments to pass to subprocess.run
 
     Raises:
-        OSError: program is not installed, or running it fails
-
-    Examples:
-        >>> check_program("python", "https://www.python.org")  # doctest: +SKIP
-        >>> check_program("this_program_does_not_exist", "nothing")  # doctest: +SKIP
-        Traceback (most recent call last):
-        ...
-        OSError: this_program_does_not_exist is not installed; install with `nothing`
+        OSError: program not installed
+        RuntimeError: program exited non-zero
     """
     try:
         call(program, stdout=subprocess.DEVNULL, **run_kwargs)
     except FileNotFoundError as e:
         raise OSError(f"{program} is not installed; install with `{install_str}`") from e
     except subprocess.CalledProcessError as e:
-        raise OSError(f"Issue with {program} encountered") from e
+        raise RuntimeError(f"`{program}` exited with {e.returncode}") from e
 
 
 def check_prerequisites(github_setup: str = "{{cookiecutter.github_setup}}") -> None:
-    """Check that the tools generation needs are installed before anything is built.
+    """Check that tools generation needs are installed, before anything is built.
 
     Args:
-        github_setup: privacy of the GitHub repository to create, or "None" to skip the CLI check
+        github_setup: repository privacy, or "None" to skip GitHub CLI check
     """
     check_program("pixi --version", "https://pixi.sh/latest/#installation")
     check_program("direnv --version", "pixi global install direnv")
@@ -226,17 +220,16 @@ def allow_direnv() -> None:
 
 
 def git_hooks() -> None:
-    """Install pre-commit and pre-push hooks (via prek)."""
+    """Install pre-commit and pre-push hooks with prek."""
     call("pixi run -e dev prek install")
 
 
 def setup_agent_files() -> None:
     """Write AGENTS.md, skills, and hooks where Codex and Claude Code each discover them.
 
-    Every agent reads the conventions from the same `AGENTS.md`, so none of them get a second
-    copy to keep in step. Codex reads skills from `.agents/skills/` and Claude Code from
-    `.claude/skills/`, neither the other's; Claude's directory is a symlink, so one copy of the
-    skills serves both. Each agent keeps its settings and hooks in its own directory.
+    Codex reads skills from `.agents/skills/` and Claude Code from `.claude/skills/`, neither the
+    other's. Claude's directory is a symlink, so one copy of the skills serves both. Each agent
+    keeps its settings and hooks in its own directory, `.codex/` and `.claude/`.
     """
     shutil.copy(Path("data/AGENTS.md"), Path("AGENTS.md"))
     shutil.copytree("data/.agents", ".agents")
@@ -246,16 +239,15 @@ def setup_agent_files() -> None:
 
 
 def remove_data_dir() -> None:
-    """Remove the data directory."""
+    """Remove post-gen staging directory."""
     shutil.rmtree("data")
 
 
 def verify_generated_project() -> None:
-    """Run the generated project's own hooks over the tree, warning on failure.
+    """Run generated project's hooks over tree, warning on failure.
 
-    A raise would have cookiecutter delete an otherwise finished project, so failures are
-    reported instead. The hooks are mutating, so any formatting they fix lands in the initial
-    commit.
+    A raise would have cookiecutter delete an otherwise finished project. Hooks are mutating, so
+    any formatting they fix lands in initial commit.
     """
     call("git add .")
     if call("pixi run -e dev prek run -a --stage pre-push", check=False).returncode:
@@ -263,23 +255,27 @@ def verify_generated_project() -> None:
 
 
 def git_initial_commit() -> None:
-    """Make the initial commit, skipping the hooks `verify_generated_project` just ran."""
+    """Make initial commit, skipping hooks `verify_generated_project` just ran."""
     call("git add .")
     call("git commit --no-verify -m Setup")
 
 
-def setup_remote(remote: str = "origin") -> None:
-    """Add remote (and optionally setup GitHub).
+def setup_remote(
+    remote: str = "origin",
+    privacy: str = "{{cookiecutter.github_setup}}",
+    url: str = "{{cookiecutter.project_url}}",
+) -> None:
+    """Add remote, creating repository on GitHub when a privacy level was chosen.
 
     Args:
-        remote: name for the remote
+        remote: name for remote
+        privacy: repository privacy, or "None" to add remote alone
+        url: URL of remote when no repository is created
     """
-    # Ruff sees the unrendered cookiecutter tag as a constant.
-    if "{{cookiecutter.github_setup}}" != "None":  # noqa: PLR0133
-        github_setup("{{cookiecutter.github_setup}}", remote)
+    if privacy != "None":
+        github_setup(privacy, remote)
         return
 
-    url = "{{cookiecutter.project_url}}"
     if not valid_remote_url(url):
         logger.warning(f"Skipping remote setup; {url=} is incomplete.")
         return
@@ -312,12 +308,12 @@ def valid_remote_url(url: str) -> bool:
 
 
 def git_add_remote(remote: str, url: str, protocol: GitProtocol = "git") -> None:
-    """Add a remote to the git repository.
+    """Add a remote to git repository.
 
     Args:
-        remote: name for the remote
-        url: url of the remote
-        protocol: protocol of the remote ("git" or "https")
+        remote: name for remote
+        url: HTTPS URL of remote
+        protocol: transport to address remote with
     """
     if protocol == "git":
         _, _, hostname, path = url.split("/", 3)
@@ -333,17 +329,19 @@ def github_setup(
     owner: str = "{{cookiecutter.github_username}}",
     name: str = "{{cookiecutter.package_name}}",
 ) -> None:
-    """Make a repository on GitHub (requires GitHub CLI).
+    """Create repository on GitHub with GitHub CLI.
 
-    The repository is qualified with its owner, so it lands under `github_username` rather than
-    whoever the GitHub CLI happens to be authenticated as.
+    Repository is qualified with its owner, so it lands under `github_username` rather than
+    whoever GitHub CLI is authenticated as. Failure is logged rather than raised: cookiecutter
+    deletes output directory when a hook raises, and project itself is finished and committed by
+    this point.
 
     Args:
-        privacy: privacy of the repository ("private", "internal", "public")
-        remote: name of the remote to add
-        default_branch: name of the default branch for upstream
-        owner: user or organization to create the repository under
-        name: name of the repository
+        privacy: repository visibility, one of "private", "internal", or "public"
+        remote: name of remote to add
+        default_branch: name of default branch for upstream
+        owner: user or organization to create repository under
+        name: name of repository
 
     Raises:
         ValueError: privacy option is not valid
@@ -366,36 +364,12 @@ def github_setup(
         logger.error(f"Error setting upstream to {default_branch}: {e}")
 
 
-def notes(
-    github_username: str = "{{cookiecutter.github_username}}",
-    package_name: str = "{{cookiecutter.package_name}}",
-) -> None:
-    """Print GitHub setup notes when a GitHub username is set.
-
-    Args:
-        github_username: GitHub user or organization that owns the repository
-        package_name: name of the package, which is also the repository name
-    """
-    if not github_username:
-        return
-
-    logger.info(
-        f"""
-If using GitHub, generate a CODECOV_TOKEN at:
-https://app.codecov.io/gh/{github_username}/{package_name}/settings
-
-and add it to the GitHub repository secrets at:
-https://github.com/{github_username}/{package_name}/settings/secrets/actions
-"""
-    )
-
-
 SUCCESS = "\x1b[1;32m"
 TERMINATOR = "\x1b[0m"
 
 
 def main() -> None:
-    """Run the post generation hooks."""
+    """Run post-generation hooks."""
     check_prerequisites()
     set_python_version("{{cookiecutter.python_version}}")
     set_license("{{cookiecutter.license}}")
@@ -407,9 +381,7 @@ def main() -> None:
     remove_data_dir()
     verify_generated_project()
     git_initial_commit()
-    setup_remote("origin")
-
-    notes()
+    setup_remote()
 
     logger.info(f"{SUCCESS}Project successfully initialized{TERMINATOR}")
 

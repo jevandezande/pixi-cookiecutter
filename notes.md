@@ -1,5 +1,7 @@
 # Notes
 
+Supplement to the [README](README.md): configuration and optional tools.
+
 ## Configuring Pixi
 
 If installing programs with pixi (recommended), make sure that `~/.pixi/bin`
@@ -20,8 +22,6 @@ curl -fsSL https://pixi.sh/install.sh | bash
 The [README](README.md) runs cookiecutter with `pixi exec`, which needs no install.
 To install it globally instead:
 
-### Installing cookiecutter
-
 ```sh
 pixi global install cookiecutter
 ```
@@ -29,8 +29,8 @@ pixi global install cookiecutter
 ## Configuring Pixi Cookiecutter
 
 Make a [config file](https://cookiecutter.readthedocs.io/en/stable/advanced/user_config.html)
-(see [template_config.yml](template_config.yml)) with default settings and save
-it as a `.cookiecutterrc` or use it directly via: `--config-file cookiecutter.yml`
+with default settings (see [template_config.yml](template_config.yml)). Save it as
+`.cookiecutterrc`, or pass it with `--config-file template_config.yml`.
 
 ## Adding project dependencies
 
@@ -42,10 +42,7 @@ specific version (e.g. `dep2`) will have a "\*" appended
 
 ### Act
 
-[act](https://github.com/nektos/act) runs GitHub Actions locally in a docker
-container. This makes sure all tests are independent of system settings, and
-should replicate running these actions on GitHub. One can act as a variety of
-different GitHub actions:
+[act](https://github.com/nektos/act) runs GitHub Actions locally in Docker:
 
 ```sh
 act push
@@ -53,10 +50,10 @@ act pull_request
 act schedule
 ```
 
-#### Installing act
+Install with `pixi global install act`, or as a GitHub CLI extension:
 
 ```sh
-pixi global install act
+gh extension install nektos/gh-act
 ```
 
 ### Direnv
@@ -78,10 +75,9 @@ Make sure that direnv is available in your shell by adding the following to your
 eval "$(direnv hook zsh)"
 ```
 
-### GitHub-CLI
+### GitHub CLI
 
-[GitHub-CLI](https://cli.github.com/) can create a new repository on GitHub and
-provides many useful additional tools. My favorites:
+[GitHub CLI](https://cli.github.com/) creates the repository on GitHub. Useful extensions:
 
 - [copilot](https://github.com/github/gh-copilot) - chat interface for questions about the command line
 - [dash](https://github.com/dlvhdr/gh-dash) - displays a dashboard with pull requests and issues
@@ -90,21 +86,16 @@ provides many useful additional tools. My favorites:
 - [markdown-preview](https://github.com/yusukebe/gh-markdown-preview) - renders markdown documents in your browser
 - [poi](https://github.com/seachicken/gh-poi) - safely cleans up old local branches
 
-#### Installing GitHub-CLI
-
-```sh
-curl -sS https://webi.sh/gh | sh
-```
+The README Setup section installs it with webi. Package-manager alternatives are under
+[Alternative installation methods](#alternative-installation-methods).
 
 ### Prek
 
-[prek](https://prek.j178.dev) runs formatting, linting, and other hooks
-on `git commit`.
+[prek](https://prek.j178.dev) runs formatting, linting, and other hooks on `git commit` and
+`git push`, and the test suite on `git push` alone. `default_install_hook_types` in the generated
+`prek.toml` makes `prek install` write the pre-push shim as well as the pre-commit one.
 
-#### Installing prek
-
-Prek is a dev dependency of every generated project, but if you want to
-install it globally:
+It ships in the generated project's dev environment, so it needs no global install. If you want one anyway:
 
 ```sh
 pixi global install prek
@@ -112,13 +103,13 @@ pixi global install prek
 
 ### Alternative installation methods
 
+Use these instead of the README's `curl` and `pixi global install` commands.
+
 #### Act
 
 ```sh
 # Brew
 brew install act
-# GitHub-CLI
-gh extension install nektos/gh-act
 ```
 
 #### Cookiecutter
@@ -139,7 +130,7 @@ apt install direnv
 brew install direnv
 ```
 
-#### GitHub-CLI
+#### GitHub CLI
 
 ```sh
 # Apt

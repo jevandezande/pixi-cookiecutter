@@ -44,12 +44,7 @@ jobs:
 
       - run: pixi run types
 
-      - run: pixi run test --cov --cov-report=xml
-
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v7.1.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - run: pixi run test
 
   generate:
     name: Generate ${{ matrix.name }}
@@ -120,3 +115,4 @@ jobs:
           test -f .claude/settings.json
           test -f .codex/hooks.json
           test ! -f CLAUDE.md
+          test ! -e data

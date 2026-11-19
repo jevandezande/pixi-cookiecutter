@@ -1,7 +1,14 @@
 ---
 name: write-method-docs
-description: Write or revise scientific method documentation with equations, algorithm sketches, and implementation-status notes.
+description: Writes and revises scientific method documentation with equations, algorithm sketches, and implementation-status notes. Use when method documentation is requested.
 argument-hint: "[topic or target doc path]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Write
+  - Bash
 ---
 
 # Writing Scientific Method Documentation
@@ -164,8 +171,8 @@ Example style:
 ```md
 ## References
 
-1. [Bakken, V.; Helgaker, T. The efficient optimization of molecular geometries using redundant internal coordinates. J. Chem. Phys. 117, 9160–9174](https://doi.org/10.1063/1.1515483)
-2. [Baker, J.; Kessi, A.; Delley, B. The generation and use of delocalized internal coordinates in geometry optimization. J. Chem. Phys. 105, 192–212](https://doi.org/10.1063/1.471864)
+1. [Nocedal, J.; Wright, S. J. Numerical Optimization. Springer](https://doi.org/10.1007/978-0-387-40065-5)
+2. [Conn, A. R.; Gould, N. I. M.; Toint, P. L. Trust Region Methods. SIAM](https://doi.org/10.1137/1.9780898719857)
 ```
 
 ## Cross-Linking
