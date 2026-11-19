@@ -246,6 +246,23 @@ def test_verify_generated_project_warns_rather_than_raising(
     assert "fails its own hooks" in caplog.text
 
 
+def test_notes_link_the_given_repository(caplog: pytest.LogCaptureFixture) -> None:
+    """Point the token links at the repository that was passed in."""
+    with caplog.at_level(logging.INFO):
+        post_gen_project.notes("octocat", "spam")
+
+    assert "https://app.codecov.io/gh/octocat/spam/settings" in caplog.text
+    assert "https://github.com/octocat/spam/settings/secrets/actions" in caplog.text
+
+
+def test_notes_skipped_without_a_github_username(caplog: pytest.LogCaptureFixture) -> None:
+    """Print nothing when there is no GitHub username."""
+    with caplog.at_level(logging.INFO):
+        post_gen_project.notes("", "spam")
+
+    assert not caplog.text
+
+
 def test_git_initial_commit_skips_the_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
     """Commit with --no-verify, since the hooks already ran over the whole tree."""
     calls: list[str] = []

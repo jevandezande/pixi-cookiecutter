@@ -17,9 +17,8 @@ curl -fsSL https://pixi.sh/install.sh | bash
 
 ## Cookiecutter
 
-While cookiecutter doesn't need to be installed globally if running the
-cookiecutter from within this project, it is needed if you want to run this
-cookiecutter without separately downloading it.
+The [README](README.md) runs cookiecutter with `pixi exec`, which needs no install.
+To install it globally instead:
 
 ### Installing cookiecutter
 
@@ -104,8 +103,8 @@ on `git commit`.
 
 #### Installing prek
 
-Prek comes installed with the pixi package, but if you want to install it
-globally:
+Prek is a dev dependency of every generated project, but if you want to
+install it globally:
 
 ```sh
 pixi global install prek

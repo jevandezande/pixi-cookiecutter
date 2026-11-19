@@ -21,7 +21,7 @@ AGENT_SKILLS = Path(".agents/skills")
 def call(cmd: str, check: bool = True, **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
     """Call shell commands.
 
-    Arguments split on whitespace, so command strings with spaces are not yet supported.
+    The command is split on whitespace, so arguments containing spaces are not supported.
 
     Args:
         cmd: command to call
@@ -190,7 +190,7 @@ def check_program(program: str, install_str: str, **run_kwargs: Any) -> None:
         run_kwargs: keyword arguments to pass to subprocess.run
 
     Raises:
-        OSError: program is missing, or command fails
+        OSError: program is not installed, or running it fails
 
     Examples:
         >>> check_program("python", "https://www.python.org")  # doctest: +SKIP
@@ -208,7 +208,7 @@ def check_program(program: str, install_str: str, **run_kwargs: Any) -> None:
 
 
 def check_prerequisites(github_setup: str = "{{cookiecutter.github_setup}}") -> None:
-    """Check that the tools that generation needs are installed, before anything is built.
+    """Check that the tools generation needs are installed before anything is built.
 
     Args:
         github_setup: privacy of the GitHub repository to create, or "None" to skip the CLI check
@@ -274,6 +274,7 @@ def setup_remote(remote: str = "origin") -> None:
     Args:
         remote: name for the remote
     """
+    # Ruff sees the unrendered cookiecutter tag as a constant.
     if "{{cookiecutter.github_setup}}" != "None":  # noqa: PLR0133
         github_setup("{{cookiecutter.github_setup}}", remote)
         return
@@ -293,7 +294,7 @@ def valid_remote_url(url: str) -> bool:
         url: url of the remote
 
     Returns:
-        Whether url is complete enough to use as a remote
+        Whether the url is complete enough to use as a remote
 
     Examples:
         >>> valid_remote_url("https://github.com/octocat/repo")
@@ -365,22 +366,26 @@ def github_setup(
         logger.error(f"Error setting upstream to {default_branch}: {e}")
 
 
-def notes(github_username: str = "{{cookiecutter.github_username}}") -> None:
+def notes(
+    github_username: str = "{{cookiecutter.github_username}}",
+    package_name: str = "{{cookiecutter.package_name}}",
+) -> None:
     """Print GitHub setup notes when a GitHub username is set.
 
     Args:
         github_username: GitHub user or organization that owns the repository
+        package_name: name of the package, which is also the repository name
     """
     if not github_username:
         return
 
     logger.info(
-        """
+        f"""
 If using GitHub, generate a CODECOV_TOKEN at:
-https://app.codecov.io/gh/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}/settings
+https://app.codecov.io/gh/{github_username}/{package_name}/settings
 
 and add it to the GitHub repository secrets at:
-https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.package_name}}/settings/secrets/actions
+https://github.com/{github_username}/{package_name}/settings/secrets/actions
 """
     )
 

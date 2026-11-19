@@ -26,7 +26,7 @@ def main() -> None:
 
 
 def check_line_length(line_length: str) -> None:
-    """Check that the line length is an integer.
+    """Check that the line length is an integer of at least 80.
 
     Args:
         line_length: line length to check
@@ -57,7 +57,7 @@ def check_line_length(line_length: str) -> None:
 def check_python_version(python_version: str) -> None:
     """Check that the python version is a supported `major.minor` version.
 
-    A minor below the supported minimum logs a warning and still returns.
+    A minor version below the supported minimum logs a warning and returns.
 
     Args:
         python_version: python version to check
@@ -158,7 +158,7 @@ def check_toml_string(name: str, value: str) -> None:
 
 
 def check_module_name(module_name: str) -> None:
-    """Check if the module name is a valid Python module name.
+    """Check that the module name is a valid Python module name.
 
     Args:
         module_name: name of the module to check

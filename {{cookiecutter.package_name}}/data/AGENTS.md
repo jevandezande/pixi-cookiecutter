@@ -16,7 +16,7 @@ changes without consulting the relevant skills.
 
 ## When in doubt
 
-- Check the skills loaded via the `skill` tool
+- Check the relevant skills in `.agents/skills/`
 - Run individual tools to identify issues
 - Ask user for clarification on ambiguous requirements
 
