@@ -80,8 +80,7 @@ Machine-local Claude Code overrides go in `.claude/settings.local.json` (gitigno
 
 - Create a branch for new work; do not develop on `master`. If another agent is working in this
   directory, offer a worktree (`git worktree add ../<repo>-<feature>`), and remove it once merged.
-- Break work into commits that each make sense alone. Prefix messages with a conventional commit
-  type: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, or `chore:`.
+- Break work into commits that each make sense alone.
 - Never credit an AI agent as an author or co-author on commits or PR messages. Commits or PRs
   that do will be rejected.
 - Do not leave comments in the code detailing what was changed.
