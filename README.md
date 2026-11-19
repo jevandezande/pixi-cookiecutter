@@ -24,8 +24,8 @@
 
 ## Setup
 
-Install `pixi` and `direnv`, and optionally the [GitHub CLI](https://cli.github.com/), which is
-required when `github_setup` is used.
+Generate on Linux or macOS; the post-gen hook creates a symlink. Install `pixi` and `direnv`, and
+optionally the [GitHub CLI](https://cli.github.com/), which is required when `github_setup` is used.
 
 ```sh
 curl -fsSL https://pixi.sh/install.sh | sh

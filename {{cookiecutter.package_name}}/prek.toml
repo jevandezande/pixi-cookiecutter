@@ -1,5 +1,6 @@
 #:schema https://www.schemastore.org/prek.json
-exclude = '\.pixi/'
+# A Windows checkout without `core.symlinks` writes the skills symlink as a one-line file
+exclude = '\.pixi/|^\.claude/skills$'
 default_install_hook_types = ["pre-commit", "pre-push"]
 default_stages = ["pre-commit", "pre-push"]
 
